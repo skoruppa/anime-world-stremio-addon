@@ -28,7 +28,11 @@ MANIFEST = {
     ],
     'behaviorHints': {'configurable': False},
     'resources': ['catalog', 'meta', 'stream'],
-    'idPrefixes': [WAWIN_ID_PREFIX]
+    'idPrefixes': [WAWIN_ID_PREFIX],
+    'stremioAddonsConfig': {
+        'issuer': 'https://stremio-addons.net',
+        'signature': 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7gV3q1MNizIqKIMz8e4qvw.DSKuF6iQaPJp9VOPWuafWVaMhN6a32S8fGxUXYcNqS7yaqP48Ys2__2p5On7XU14e6IOE5qy56xaZCqDi61J-hEThy76L6YtS0F6tyc140pdd65-7Mw_uiXin2gq9NV4.hjecT9eBaBcBrEy5MdVnCQ'
+    }
 }
 
 
