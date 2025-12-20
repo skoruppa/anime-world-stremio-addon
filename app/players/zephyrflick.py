@@ -1,6 +1,7 @@
 import re
 import requests
 from app.routes.utils import get_random_agent
+from config import Config
 
 async def get_video_from_zephyrflick_player(player_url: str):
     """
@@ -37,6 +38,9 @@ async def get_video_from_zephyrflick_player(player_url: str):
         
         if not video_url:
             return None, None, None, []
+        
+        # Rewrite URL to use our proxy
+        video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}')
         
         # Get subtitles from player page
         subtitles = []
