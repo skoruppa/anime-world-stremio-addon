@@ -7,7 +7,7 @@
   <img src="https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png" alt="WatchAnimeWorld Logo" width="300">
 </div>
 
-This unofficial Stremio addon allows users to access anime streams from [WatchAnimeWorld.in](https://watchanimeworld.in/) - the best source for Hindi, Tamil, Telugu & English anime.
+This unofficial Stremio addon allows users to access anime streams from [AnimeWorld India](https://watchanimeworld.in/) - source for anime in Hindi, Tamil, Telugu & English.
 
 ## 🎯 Supported Players
 - **Zephyrflick**: Primary streaming source with subtitle support
