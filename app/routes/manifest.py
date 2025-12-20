@@ -11,11 +11,14 @@ MANIFEST = {
     'name': 'WatchAnimeWorld Addon',
     'logo': 'https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png',
     'description': 'Stream anime from WatchAnimeWorld.in',
-    'types': ['anime', 'series'],
+    'types': ['anime', 'series', 'movie'],
     'contactEmail': 'skoruppa@gmail.com',
     'catalogs': [
-        {'type': 'anime', 'id': 'trending', 'name': 'Trending'},
-        {'type': 'anime', 'id': 'recent', 'name': 'Recent Episodes'},
+        {'type': 'anime', 'id': 'newest_drops', 'name': 'Newest Drops'},
+        {'type': 'anime', 'id': 'most_watched_shows', 'name': 'Most-Watched Shows'},
+        {'type': 'anime', 'id': 'new_arrivals', 'name': 'New Anime Arrivals'},
+        {'type': 'anime', 'id': 'most_watched_films', 'name': 'Most-Watched Films'},
+        {'type': 'anime', 'id': 'latest_movies', 'name': 'Latest Anime Movies'},
         {
             'type': 'anime',
             'id': 'search',

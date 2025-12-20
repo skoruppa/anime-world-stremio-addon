@@ -10,7 +10,7 @@ from app.players.zephyrflick import get_video_from_zephyrflick_player
 stream_bp = Blueprint('stream', __name__)
 
 
-async def process_stream(stream_data, subtitles):
+async def process_stream(stream_data):
     """Process a single stream source"""
     player = stream_data.get('player')
     url = stream_data.get('url')
@@ -18,9 +18,10 @@ async def process_stream(stream_data, subtitles):
     video_url = None
     quality = 'auto'
     headers = None
+    subtitles = []
     
     if player == 'zephyrflick':
-        video_url, quality, headers = await get_video_from_zephyrflick_player(url)
+        video_url, quality, headers, subtitles = await get_video_from_zephyrflick_player(url)
     
     if not video_url:
         return None
@@ -33,10 +34,9 @@ async def process_stream(stream_data, subtitles):
     if headers:
         stream_obj['behaviorHints'] = {'proxyHeaders': headers}
     
-    # Add subtitles
     if subtitles:
         stream_obj['subtitles'] = [
-            {'url': sub['url'], 'lang': sub['lang']}
+            {'id': sub.get('id', sub['url']), 'url': sub['url'], 'lang': sub['lang']}
             for sub in subtitles
         ]
     
@@ -48,7 +48,7 @@ async def addon_stream(content_type: str, content_id: str):
     """
     Provide stream URLs
     :param content_type: The type of content
-    :param content_id: The id of the content (wawin:slug:episode)
+    :param content_id: The id of the content (wawin:slug:season:episode or wawin:slug:episode for movies)
     :return: JSON response
     """
     content_id = urllib.parse.unquote(content_id)
@@ -57,18 +57,25 @@ async def addon_stream(content_type: str, content_id: str):
     if content_type not in MANIFEST['types']:
         abort(404)
 
-    if len(parts) < 3 or parts[0] != WAWIN_ID_PREFIX:
+    if len(parts) < 2 or parts[0] != WAWIN_ID_PREFIX:
         return respond_with({'streams': []})
 
     slug = parts[1]
-    episode = int(parts[2])
+    # For series: wawin:slug:season:episode, for movies: wawin:slug (no season/episode)
+    if len(parts) == 4:
+        season = int(parts[2])
+        episode = int(parts[3])
+    else:
+        # Movies don't have season/episode
+        season = None
+        episode = None
 
     try:
-        data = wawin_client.get_episode_streams(slug, episode)
+        data = wawin_client.get_episode_streams(slug, season, episode)
         streams = []
         
         for stream_data in data.get('streams', []):
-            stream = await process_stream(stream_data, data.get('subtitles', []))
+            stream = await process_stream(stream_data)
             if stream:
                 streams.append(stream)
         

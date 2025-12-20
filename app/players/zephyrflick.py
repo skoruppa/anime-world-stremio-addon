@@ -1,30 +1,77 @@
 import re
 import requests
-from bs4 import BeautifulSoup
+from app.routes.utils import get_random_agent
 
 async def get_video_from_zephyrflick_player(player_url: str):
     """
-    Extract video URL from Zephyrflick player
+    Extract video URL and subtitles from Zephyrflick player
     :param player_url: Zephyrflick player URL
-    :return: tuple (video_url, quality, headers)
+    :return: tuple (video_url, quality, headers, subtitles)
     """
     try:
+        # Extract video ID from URL
+        match = re.search(r'/video/([a-f0-9]+)', player_url)
+        if not match:
+            return None, None, None, []
+        
+        video_id = match.group(1)
+        
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'User-Agent': get_random_agent(),
+            'X-Requested-With': 'XMLHttpRequest',
             'Referer': player_url
         }
         
-        resp = requests.get(player_url, headers=headers, timeout=30)
+        # Make POST request to get video source
+        api_url = f"https://play.zephyrflick.top/player/index.php"
+        params = {
+            'data': video_id,
+            'do': 'getVideo'
+        }
+        
+        resp = requests.post(api_url, params=params, headers=headers, timeout=30)
         resp.raise_for_status()
         
-        # Look for m3u8 playlist URL in the page
-        m3u8_match = re.search(r'(https?://[^"\']+\.m3u8[^"\']*)', resp.text)
+        data = resp.json()
+        video_url = data.get('videoSource')
         
-        if m3u8_match:
-            video_url = m3u8_match.group(1)
-            return video_url, 'auto', headers
+        if not video_url:
+            return None, None, None, []
         
-        return None, None, None
+        # Get subtitles from player page
+        subtitles = []
+        try:
+            page_resp = requests.get(player_url, headers=headers, timeout=30)
+            page_resp.raise_for_status()
+            
+            # Find playerjsSubtitle variable
+            subtitle_match = re.search(r'var playerjsSubtitle = "([^"]+)"', page_resp.text)
+            if subtitle_match:
+                subtitle_data = subtitle_match.group(1)
+                # Parse subtitle entries: [Language]url
+                for line in subtitle_data.split('\n'):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    sub_match = re.match(r'\[([^\]]+)\](.+)', line)
+                    if sub_match:
+                        lang_name = sub_match.group(1)
+                        sub_url = sub_match.group(2)
+                        
+                        # Convert language name to ISO code
+                        lang_code = 'eng' if 'english' in lang_name.lower() else lang_name.lower()[:3]
+                        
+                        subtitles.append({
+                            'id': f"{video_id}_{lang_code}",
+                            'url': sub_url,
+                            'lang': lang_code
+                        })
+        except:
+            pass
+        
+        return video_url, 'auto', headers, subtitles
+        
     except Exception as e:
         print(f"Error extracting Zephyrflick video: {e}")
-        return None, None, None
+        return None, None, None, []

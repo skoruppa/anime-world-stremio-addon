@@ -1,12 +1,11 @@
 import logging
 
-from flask import Flask, render_template, session, url_for, redirect
+from flask import Flask, render_template, url_for, redirect
 from flask_compress import Compress
 from app.routes.catalog import catalog_bp
 from app.routes.manifest import manifest_blueprint
 from app.routes.meta import meta_bp
 from app.routes.stream import stream_bp
-from app.db import database
 from app.routes.utils import cache
 from config import Config
 
@@ -29,10 +28,13 @@ def index():
     """
     Render the index page
     """
+    from app.routes.manifest import MANIFEST
     manifest_url = f'{Config.PROTOCOL}://{Config.REDIRECT_URL}/manifest.json'
     manifest_magnet = f'stremio://{Config.REDIRECT_URL}/manifest.json'
     return render_template('index.html',
-                               manifest_url=manifest_url, manifest_magnet=manifest_magnet)
+                               manifest_url=manifest_url, 
+                               manifest_magnet=manifest_magnet,
+                               version=MANIFEST['version'])
 
 
 @app.route('/favicon.ico')
@@ -53,9 +55,5 @@ def callback():
 
 
 if __name__ == '__main__':
-    try:
-        from waitress import serve
-
-        serve(app, host='0.0.0.0', port=5000)
-    finally:
-        database.storage.flush()
+    from waitress import serve
+    serve(app, host='0.0.0.0', port=5000)

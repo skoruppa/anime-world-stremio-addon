@@ -1,37 +1,122 @@
-{% extends 'base.html' %}
-
-{% block title %}
-    Docchi.pl Stremio Addon
-{% endblock %}
-
-{% block header %}
-    Docchi.pl Stremio Addon
-{% endblock %}
-
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class=flashes>
-            {% for message in messages %}
-                <h2>{{ message }}</h2>
-            {% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <title>WatchAnimeWorld Stremio Addon</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #020209;
+            color: #fff;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50vh;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95)), 
+                        url('https://watchanimeworld.in/wp-content/uploads/129659-final-1-scaled.jpg');
+            background-size: cover;
+            background-position: center top;
+            z-index: -1;
+        }
+        
+        .content { flex: 1; position: relative; z-index: 1; }
+        footer { margin-top: auto; background-color: #020209 !important; }
+        
+        .logo { max-width: 300px; margin-bottom: 2rem; }
+        .card { background-color: rgba(0,0,0,0.85) !important; border: 1px solid #28c2bd !important; }
+        .form-control { 
+            background-color: #1a1a1a !important; 
+            color: #28c2bd !important; 
+            border: 1px solid #28c2bd !important;
+        }
+        .btn-primary { background-color: #28c2bd; border-color: #28c2bd; color: #020209; font-weight: 600; }
+        .btn-primary:hover { background-color: #20a09d; border-color: #20a09d; }
+        .btn-success { background-color: #28c2bd; border-color: #28c2bd; color: #020209; font-weight: 600; }
+        .btn-success:hover { background-color: #20a09d; border-color: #20a09d; }
+        .btn-outline-warning { color: #28c2bd; border-color: #28c2bd; }
+        .btn-outline-warning:hover { background-color: #28c2bd; color: #020209; }
+        .text-accent { color: #28c2bd !important; }
+        a { color: #28c2bd; text-decoration: none; }
+        a:hover { color: #20a09d; }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="container py-5">
+            <header class="text-center mb-5">
+                <img src="https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png" alt="WatchAnimeWorld" class="logo img-fluid">
+                <h1 class="display-5 fw-bold"><a href="https://watchanimeworld.in" target="_blank" class="text-accent">WatchAnimeWorld.in</a> Stremio Addon</h1>
+                <p class="text-white-50 mt-3">Unofficial addon for Stremio to watch anime from <a href="https://watchanimeworld.in" target="_blank" class="text-accent">watchanimeworld.in</a></p>
+                <p class="text-white-50 small">Best Source For Hindi, Tamil, Telugu & English Anime</p>
+            </header>
+            <main>
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
+                        <div class="card border-0 shadow-lg">
+                            <div class="card-body p-4 p-md-5">
+                                <p class="text-center text-white-50 mb-4">Stream anime in Hindi, Tamil, Telugu & English with subtitles</p>
+                                
+                                <div class="mb-4">
+                                    <label for="manifest_url" class="form-label text-white-50 small">Manifest URL</label>
+                                    <div class="input-group">
+                                        <input id="manifest_url" class="form-control" type="text" value="{{ manifest_url }}" readonly>
+                                        <button class="btn btn-outline-warning" onclick="copy_to_clipboard(event)" title="Copy">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                    <button class="btn btn-primary btn-lg px-4" onclick="copy_to_clipboard(event)">
+                                        <i class="bi bi-clipboard me-2"></i>Copy URL
+                                    </button>
+                                    <button class="btn btn-success btn-lg px-4" onclick="location.href='{{ manifest_magnet }}'">
+                                        <i class="bi bi-download me-2"></i>Install in Stremio
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center text-white-50">
+                            <small>
+                                <i class="bi bi-info-circle me-1"></i>
+                                Copy URL and paste in Stremio addon settings or click "Install in Stremio"
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-    {% endif %}
-{% endwith %}
-
-{% block content %}
-    <div class="card border-0 text-center bg-dark text-white">
-            <label for="manifest_url">
-                <input id="manifest_url" class="bg-dark text-warning form-control" type="text"
-                       value="{{ manifest_url }}" readonly>
-            </label>
-            <div class="d-col pt-3">
-                <button class="btn btn-primary mr-2" onclick="copy_to_clipboard()">
-                    Copy Manifest URL
-                </button>
-
-                <button class="btn btn-primary ml-2" onclick="location.href='{{ manifest_magnet }}'">
-                    Open In Stremio
-                </button>
-            </div>
     </div>
-{% endblock %}
+    <footer class="py-3 mt-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <small class="text-white-50">v{{ version }}</small>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="https://github.com/skoruppa/anime-world-stremio-addon" target="_blank" class="text-accent text-decoration-none me-3" title="GitHub">
+                        <i class="bi bi-github fs-4"></i>
+                    </a>
+                    <a href="https://buycoffee.to/skoruppa" target="_blank" class="text-accent text-decoration-none" title="Buy me a coffee">
+                        <i class="bi bi-cup-hot-fill fs-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="/static/js/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

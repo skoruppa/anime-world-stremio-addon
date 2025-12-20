@@ -26,11 +26,20 @@ def addon_catalog(catalog_type: str, catalog_id: str, search: str = None):
     try:
         metas = []
         
-        if catalog_id == 'trending':
-            results = wawin_client.get_trending_anime()
+        if catalog_id == 'newest_drops':
+            results = wawin_client.get_newest_drops()
             metas = [wawin_to_meta(item) for item in results]
-        elif catalog_id == 'recent':
-            results = wawin_client.get_recent_episodes()
+        elif catalog_id == 'most_watched_shows':
+            results = wawin_client.get_most_watched_shows()
+            metas = [wawin_to_meta(item) for item in results]
+        elif catalog_id == 'new_arrivals':
+            results = wawin_client.get_new_anime_arrivals()
+            metas = [wawin_to_meta(item) for item in results]
+        elif catalog_id == 'most_watched_films':
+            results = wawin_client.get_most_watched_films()
+            metas = [wawin_to_meta(item) for item in results]
+        elif catalog_id == 'latest_movies':
+            results = wawin_client.get_latest_anime_movies()
             metas = [wawin_to_meta(item) for item in results]
         elif catalog_id == 'search' and search:
             search = urllib.parse.unquote(search)
@@ -48,6 +57,6 @@ def wawin_to_meta(item: dict):
     return {
         'id': f"{WAWIN_ID_PREFIX}:{slug}",
         'name': item.get('title'),
-        'type': 'series',
+        'type': item.get('type', 'series'),
         'poster': item.get('poster')
     }

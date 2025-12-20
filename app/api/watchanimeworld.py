@@ -2,6 +2,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote
+import re
 
 BASE_URL = "https://watchanimeworld.in"
 TIMEOUT = 30
@@ -17,14 +18,165 @@ class WatchAnimeWorldAPI:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
 
+    def _parse_section(self, soup, section_title):
+        """Parse a section from homepage by title"""
+        results = []
+        
+        # Check widget_list_episodes sections
+        for section in soup.find_all('section', class_='widget_list_episodes'):
+            title_elem = section.find('h3', class_='section-title')
+            if title_elem and section_title.lower() in title_elem.text.lower():
+                for slide in section.select('.swiper-slide'):
+                    article = slide.find('article')
+                    if not article:
+                        continue
+                    
+                    link = article.find('a', class_='lnk-blk')
+                    img = article.find('img')
+                    title = article.find('h2', class_='entry-title')
+                    
+                    if link and title:
+                        href = link.get('href', '')
+                        slug = href.rstrip('/').split('/')[-1]
+                        content_type = 'movie' if '/movies/' in href else 'series'
+                        
+                        results.append({
+                            'title': title.text.strip(),
+                            'slug': slug,
+                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                            'type': content_type
+                        })
+        
+        # Check widget_list_movies_series sections
+        for section in soup.find_all('section', class_='widget_list_movies_series'):
+            title_elem = section.find('h3', class_='section-title')
+            if title_elem and section_title.lower() in title_elem.text.lower():
+                for slide in section.select('.swiper-slide'):
+                    article = slide.find('article')
+                    if not article:
+                        continue
+                    
+                    link = article.find('a', class_='lnk-blk')
+                    img = article.find('img')
+                    title = article.find('h2', class_='entry-title')
+                    
+                    if link and title:
+                        href = link.get('href', '')
+                        slug = href.rstrip('/').split('/')[-1]
+                        content_type = 'movie' if '/movies/' in href else 'series'
+                        
+                        results.append({
+                            'title': title.text.strip(),
+                            'slug': slug,
+                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                            'type': content_type
+                        })
+        
+        # Check widget_top sections (Most-Watched)
+        for section in soup.find_all('section', class_='widget_top'):
+            title_elem = section.find('h3', class_='widget-title')
+            if title_elem and section_title.lower() in title_elem.text.lower():
+                for item in section.select('.top-picks__item'):
+                    link = item.find('a', class_='lnk-blk')
+                    img = item.find('img')
+                    
+                    if link and img:
+                        href = link.get('href', '')
+                        parts = href.rstrip('/').split('/')
+                        slug = parts[-1] if parts else ''
+                        alt_text = img.get('alt', '').replace('Image ', '')
+                        content_type = 'movie' if '/movies/' in href else 'series'
+                        
+                        results.append({
+                            'title': alt_text.strip(),
+                            'slug': slug,
+                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                            'type': content_type
+                        })
+        
+        return results
+
+    def _get_episodes_from_html(self, soup):
+        """Extract episodes from HTML"""
+        episodes = []
+        # Try both selectors - page has #episode_by_temp, AJAX response doesn't
+        for li in soup.select('#episode_by_temp li, li'):
+            article = li.find('article', class_='episodes')
+            if not article:
+                continue
+            
+            link = article.find('a', class_='lnk-blk')
+            num_epi = article.find('span', class_='num-epi')
+            title_elem = article.find('h2', class_='entry-title')
+            
+            if link and num_epi:
+                href = link.get('href', '')
+                match = re.match(r'(\d+)x(\d+)', num_epi.text.strip())
+                if match:
+                    season = int(match.group(1))
+                    episode = int(match.group(2))
+                    episodes.append({
+                        'season': season,
+                        'episode': episode,
+                        'title': title_elem.text.strip() if title_elem else f"Episode {episode}",
+                        'url': href
+                    })
+        return episodes
+
+    def _get_season_episodes(self, post_id: str, season: int):
+        """Get episodes for a specific season"""
+        url = f"{BASE_URL}/wp-admin/admin-ajax.php"
+        params = {
+            'action': 'action_select_season',
+            'season': season,
+            'post': post_id
+        }
+        
+        resp = self.session.get(url, params=params, timeout=TIMEOUT)
+        resp.raise_for_status()
+        
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._get_episodes_from_html(soup)
+
+    def get_newest_drops(self):
+        """Get Newest Drops section"""
+        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._parse_section(soup, 'Newest Drops')
+
+    def get_most_watched_shows(self):
+        """Get Most-Watched Shows section"""
+        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._parse_section(soup, 'Most-Watched Shows')
+
+    def get_new_anime_arrivals(self):
+        """Get New Anime Arrivals section"""
+        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._parse_section(soup, 'New Anime Arrivals')
+
+    def get_most_watched_films(self):
+        """Get Most-Watched Films section"""
+        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._parse_section(soup, 'Most-Watched Films')
+
+    def get_latest_anime_movies(self):
+        """Get Latest Anime Movies section"""
+        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        return self._parse_section(soup, 'Latest Anime Movies')
+
     def search_anime(self, query: str):
-        """
-        Search for anime by name
-        :param query: search query
-        :return: list of anime results
-        """
-        url = f"{BASE_URL}/search"
-        params = {'q': query}
+        """Search for anime"""
+        url = f"{BASE_URL}/"
+        params = {'s': query}
         
         resp = self.session.get(url, params=params, timeout=TIMEOUT)
         resp.raise_for_status()
@@ -32,146 +184,126 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         results = []
         
-        for item in soup.select('.anime-item'):
-            title = item.select_one('.anime-title')
-            link = item.select_one('a')
-            img = item.select_one('img')
-            
-            if title and link:
-                results.append({
-                    'title': title.text.strip(),
-                    'slug': link['href'].strip('/').split('/')[-1],
-                    'url': urljoin(BASE_URL, link['href']),
-                    'poster': img['src'] if img else None
-                })
+        # Search results are in #aa-movies section
+        search_section = soup.select_one('#aa-movies')
+        if search_section:
+            for li in search_section.select('ul.post-lst > li'):
+                article = li.find('article')
+                if not article:
+                    continue
+                
+                link = article.find('a', class_='lnk-blk')
+                img = article.find('img')
+                title = article.find('h2', class_='entry-title')
+                
+                if link and title:
+                    href = link.get('href', '')
+                    slug = href.rstrip('/').split('/')[-1]
+                    content_type = 'movie' if '/movies/' in href else 'series'
+                    
+                    results.append({
+                        'title': title.text.strip(),
+                        'slug': slug,
+                        'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                        'type': content_type
+                    })
         
         return results
 
     def get_anime_details(self, slug: str):
-        """
-        Get anime details by slug
-        :param slug: anime slug
-        :return: anime details dict
-        """
-        url = f"{BASE_URL}/anime/{slug}"
-        
-        resp = self.session.get(url, timeout=TIMEOUT)
-        resp.raise_for_status()
-        
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        
-        title = soup.select_one('.anime-title')
-        description = soup.select_one('.anime-description')
-        poster = soup.select_one('.anime-poster img')
-        
-        episodes = []
-        for ep in soup.select('.episode-item'):
-            ep_link = ep.select_one('a')
-            if ep_link:
-                ep_num = ep.select_one('.episode-number')
-                episodes.append({
-                    'number': int(ep_num.text.strip()) if ep_num else len(episodes) + 1,
-                    'url': urljoin(BASE_URL, ep_link['href'])
-                })
-        
-        return {
-            'title': title.text.strip() if title else None,
-            'slug': slug,
-            'description': description.text.strip() if description else None,
-            'poster': poster['src'] if poster else None,
-            'episodes': episodes
-        }
-
-    def get_episode_streams(self, slug: str, episode: int):
-        """
-        Get stream URLs for an episode
-        :param slug: anime slug
-        :param episode: episode number
-        :return: list of stream sources
-        """
-        url = f"{BASE_URL}/watch/{slug}/{episode}"
-        
-        resp = self.session.get(url, timeout=TIMEOUT)
-        resp.raise_for_status()
-        
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        
-        streams = []
-        
-        # Find Zephyrflick player
-        zephyr_iframe = soup.select_one('iframe[src*="zephyrflick"]')
-        if zephyr_iframe:
-            streams.append({
-                'player': 'zephyrflick',
-                'url': zephyr_iframe['src']
-            })
-        
-        # Find subtitle tracks
-        subtitles = []
-        for track in soup.select('track[kind="subtitles"]'):
-            subtitles.append({
-                'url': urljoin(BASE_URL, track.get('src', '')),
-                'lang': track.get('srclang', 'en'),
-                'label': track.get('label', 'English')
-            })
-        
-        return {
-            'streams': streams,
-            'subtitles': subtitles
-        }
-
-    def get_trending_anime(self, limit=20):
-        """
-        Get trending anime list
-        :param limit: number of results
-        :return: list of anime
-        """
-        url = f"{BASE_URL}/trending"
-        
-        resp = self.session.get(url, timeout=TIMEOUT)
-        resp.raise_for_status()
-        
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        results = []
-        
-        for item in soup.select('.anime-item')[:limit]:
-            title = item.select_one('.anime-title')
-            link = item.select_one('a')
-            img = item.select_one('img')
+        """Get anime details by slug"""
+        for content_type in ['series', 'movies']:
+            url = f"{BASE_URL}/{content_type}/{slug}"
             
-            if title and link:
-                results.append({
-                    'title': title.text.strip(),
-                    'slug': link['href'].strip('/').split('/')[-1],
-                    'poster': img['src'] if img else None
-                })
+            try:
+                resp = self.session.get(url, timeout=TIMEOUT)
+                resp.raise_for_status()
+                
+                soup = BeautifulSoup(resp.text, 'html.parser')
+                
+                title = soup.select_one('.entry-title, h1.entry-title')
+                description = soup.select_one('.description p')
+                poster = soup.select_one('article.post img')
+                
+                genres = [g.text.strip() for g in soup.select('.genres a')]
+                
+                year = None
+                year_elem = soup.select_one('.year .overviewCss')
+                if year_elem:
+                    year = year_elem.text.strip()
+                
+                runtime = None
+                duration_elem = soup.select_one('.duration .overviewCss')
+                if duration_elem:
+                    runtime = duration_elem.text.strip()
+                
+                episodes = []
+                if content_type == 'series':
+                    episodes = self._get_episodes_from_html(soup)
+                    
+                    season_links = soup.select('.choose-season .sel-temp a')
+                    if len(season_links) > 1:
+                        post_id = season_links[0].get('data-post')
+                        if post_id:
+                            current_season = int(soup.select_one('.n_s').text.strip()) if soup.select_one('.n_s') else 1
+                            for link in season_links:
+                                season_num = int(link.get('data-season', 0))
+                                if season_num != current_season:
+                                    season_eps = self._get_season_episodes(post_id, season_num)
+                                    episodes.extend(season_eps)
+                    
+                    episodes.sort(key=lambda x: (x['season'], x['episode']))
+                else:
+                    episodes.append({
+                        'season': 1,
+                        'episode': 1,
+                        'title': title.text.strip() if title else 'Movie',
+                        'url': url
+                    })
+                
+                return {
+                    'title': title.text.strip() if title else None,
+                    'slug': slug,
+                    'description': description.text.strip() if description else None,
+                    'poster': poster.get('src', '').replace('//', 'https://') if poster else None,
+                    'genres': genres,
+                    'year': year,
+                    'runtime': runtime,
+                    'episodes': episodes,
+                    'type': 'movie' if content_type == 'movies' else 'series'
+                }
+            except:
+                continue
         
-        return results
+        return None
 
-    def get_recent_episodes(self, limit=20):
-        """
-        Get recently added episodes
-        :param limit: number of results
-        :return: list of recent episodes
-        """
-        url = f"{BASE_URL}/recent"
+    def get_episode_streams(self, slug: str, season: int = None, episode: int = None):
+        """Get stream URLs for an episode or movie"""
+        # For movies, season and episode are None
+        if season is not None and episode is not None:
+            url = f"{BASE_URL}/episode/{slug}-{season}x{episode}/"
+        else:
+            url = f"{BASE_URL}/movies/{slug}"
         
-        resp = self.session.get(url, timeout=TIMEOUT)
-        resp.raise_for_status()
-        
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        results = []
-        
-        for item in soup.select('.episode-item')[:limit]:
-            title = item.select_one('.anime-title')
-            link = item.select_one('a')
-            ep_num = item.select_one('.episode-number')
+        try:
+            resp = self.session.get(url, timeout=TIMEOUT)
+            resp.raise_for_status()
             
-            if title and link:
-                results.append({
-                    'title': title.text.strip(),
-                    'slug': link['href'].strip('/').split('/')[-2],
-                    'episode': int(ep_num.text.strip()) if ep_num else 1
-                })
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            
+            streams = []
+            
+            for iframe in soup.find_all('iframe'):
+                src = iframe.get('src', '') or iframe.get('data-src', '')
+                if 'zephyrflick' in src.lower():
+                    streams.append({
+                        'player': 'zephyrflick',
+                        'url': src if src.startswith('http') else urljoin(BASE_URL, src)
+                    })
+            
+            if streams:
+                return {'streams': streams}
+        except:
+            pass
         
-        return results
+        return {'streams': []}
