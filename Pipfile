@@ -14,6 +14,8 @@ aiohttp = "~=3.12.14"
 aiocache = "~=0.12.3"
 flask-compress = "~=1.17"
 python-dotenv = "~=1.0.1"
+gunicorn = "~=21.2.0"
+waitress = "~=3.0.0"
 flask = {extras = ["async"], version = "~=3.1.0"}
 
 [dev-packages]

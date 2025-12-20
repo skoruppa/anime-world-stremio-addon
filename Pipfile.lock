@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "257afa4d421ad4cad12c55f0193543e65e52bb586eb651b5bb777c583fc984c7"
+            "sha256": "5555df01f7799efb614f813dc4b8fb6965ff486541d5a7cdb0b29286eece1f9a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -710,6 +710,15 @@
             "markers": "python_version >= '3.9'",
             "version": "==1.8.0"
         },
+        "gunicorn": {
+            "hashes": [
+                "sha256:3213aa5e8c24949e792bcacfc176fef362e7aac80b76c56f6b5122bf350722f0",
+                "sha256:88ec8bff1d634f98e61b9f65bc4bf3cd918a90806c6f5c48bc5603849ec81033"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.5'",
+            "version": "==21.2.0"
+        },
         "idna": {
             "hashes": [
                 "sha256:771a87f49d9defaf64091e6e6fe9c18d4833f140bd19464795bc32d966ca37ea",
@@ -981,6 +990,14 @@
             "markers": "python_version >= '3.9'",
             "version": "==6.7.0"
         },
+        "packaging": {
+            "hashes": [
+                "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484",
+                "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==25.0"
+        },
         "propcache": {
             "hashes": [
                 "sha256:0002004213ee1f36cfb3f9a42b5066100c44276b9b72b4e1504cddd3d692e86e",
@@ -1151,6 +1168,15 @@
             ],
             "markers": "python_version >= '3.9'",
             "version": "==2.6.2"
+        },
+        "waitress": {
+            "hashes": [
+                "sha256:682aaaf2af0c44ada4abfb70ded36393f0e307f4ab9456a215ce0020baefc31f",
+                "sha256:c56d67fd6e87c2ee598b76abdd4e96cfad1f24cacdea5078d382b1f9d7b5ed2e"
+            ],
+            "index": "pypi",
+            "markers": "python_full_version >= '3.9.0'",
+            "version": "==3.0.2"
         },
         "werkzeug": {
             "hashes": [
