@@ -115,6 +115,7 @@ class WatchAnimeWorldAPI:
             link = article.find('a', class_='lnk-blk')
             num_epi = article.find('span', class_='num-epi')
             title_elem = article.find('h2', class_='entry-title')
+            img = article.find('img')
             
             if link and num_epi:
                 href = link.get('href', '')
@@ -122,12 +123,21 @@ class WatchAnimeWorldAPI:
                 if match:
                     season = int(match.group(1))
                     episode = int(match.group(2))
-                    episodes.append({
+                    ep_data = {
                         'season': season,
                         'episode': episode,
                         'title': title_elem.text.strip() if title_elem else f"Episode {episode}",
                         'url': href
-                    })
+                    }
+                    if img:
+                        thumbnail = img.get('src', '')
+                        if thumbnail:
+                            if thumbnail.startswith('//'):
+                                thumbnail = 'https:' + thumbnail
+                            elif not thumbnail.startswith('http'):
+                                thumbnail = 'https://' + thumbnail
+                            ep_data['thumbnail'] = thumbnail
+                    episodes.append(ep_data)
         return episodes
 
     def _get_season_episodes(self, post_id: str, season: int):

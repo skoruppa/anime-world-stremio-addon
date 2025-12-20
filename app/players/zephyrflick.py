@@ -17,7 +17,7 @@ async def get_video_from_zephyrflick_player(player_url: str):
         
         video_id = match.group(1)
         
-        headers = {
+        api_headers = {
             'User-Agent': get_random_agent(),
             'X-Requested-With': 'XMLHttpRequest',
             'Referer': player_url
@@ -30,7 +30,7 @@ async def get_video_from_zephyrflick_player(player_url: str):
             'do': 'getVideo'
         }
         
-        resp = requests.post(api_url, params=params, headers=headers, timeout=30)
+        resp = requests.post(api_url, params=params, headers=api_headers, timeout=30)
         resp.raise_for_status()
         
         data = resp.json()
@@ -42,10 +42,16 @@ async def get_video_from_zephyrflick_player(player_url: str):
         # Rewrite URL to use our proxy
         video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}')
         
+        # Headers for stream (without X-Requested-With)
+        stream_headers = {
+            'User-Agent': get_random_agent(),
+            'Referer': player_url
+        }
+        
         # Get subtitles from player page
         subtitles = []
         try:
-            page_resp = requests.get(player_url, headers=headers, timeout=30)
+            page_resp = requests.get(player_url, headers=api_headers, timeout=30)
             page_resp.raise_for_status()
             
             # Find playerjsSubtitle variable
@@ -74,7 +80,7 @@ async def get_video_from_zephyrflick_player(player_url: str):
         except:
             pass
         
-        return video_url, 'auto', headers, subtitles
+        return video_url, 'auto', stream_headers, subtitles
         
     except Exception as e:
         print(f"Error extracting Zephyrflick video: {e}")

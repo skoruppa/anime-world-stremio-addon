@@ -44,7 +44,8 @@ def addon_meta(meta_type: str, meta_id: str):
                     'id': f"{WAWIN_ID_PREFIX}:{slug}:{ep['season']}:{ep['episode']}",
                     'title': ep.get('title', f"Episode {ep['episode']}"),
                     'episode': ep['episode'],
-                    'season': ep.get('season', 1)
+                    'season': ep.get('season', 1),
+                    'thumbnail': ep.get('thumbnail')
                 }
                 for ep in details.get('episodes', [])
             ]
