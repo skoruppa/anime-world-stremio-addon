@@ -3,9 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote
 import re
+from cachetools import TTLCache, cached
+import time
 
 BASE_URL = "https://watchanimeworld.in"
 TIMEOUT = 30
+
+# TTL cache with 15 minutes expiration
+catalog_cache = TTLCache(maxsize=128, ttl=900)
+search_cache = TTLCache(maxsize=256, ttl=900)
+details_cache = TTLCache(maxsize=512, ttl=900)
 
 class WatchAnimeWorldAPI:
     """
@@ -138,6 +145,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._get_episodes_from_html(soup)
 
+    @cached(catalog_cache)
     def get_newest_drops(self):
         """Get Newest Drops section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -145,6 +153,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Newest Drops')
 
+    @cached(catalog_cache)
     def get_most_watched_shows(self):
         """Get Most-Watched Shows section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -152,6 +161,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Most-Watched Shows')
 
+    @cached(catalog_cache)
     def get_new_anime_arrivals(self):
         """Get New Anime Arrivals section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -159,6 +169,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'New Anime Arrivals')
 
+    @cached(catalog_cache)
     def get_most_watched_films(self):
         """Get Most-Watched Films section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -166,6 +177,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Most-Watched Films')
 
+    @cached(catalog_cache)
     def get_latest_anime_movies(self):
         """Get Latest Anime Movies section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -173,6 +185,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Latest Anime Movies')
 
+    @cached(search_cache)
     def search_anime(self, query: str):
         """Search for anime"""
         url = f"{BASE_URL}/"
@@ -210,6 +223,7 @@ class WatchAnimeWorldAPI:
         
         return results
 
+    @cached(details_cache)
     def get_anime_details(self, slug: str):
         """Get anime details by slug"""
         for content_type in ['series', 'movies']:
