@@ -10,7 +10,7 @@ MANIFEST = {
     'version': '0.0.1',
     'name': 'WatchAnimeWorld Addon',
     'logo': 'https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png',
-    'description': 'Stream anime from WatchAnimeWorld.in',
+    'description': 'Watch anime in Hindi, Tamil, Telugu & English from WatchAnimeWorld.in',
     'types': ['anime', 'series', 'movie'],
     'contactEmail': 'skoruppa@gmail.com',
     'catalogs': [
