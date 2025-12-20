@@ -145,7 +145,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._get_episodes_from_html(soup)
 
-    @cached(catalog_cache)
+    @cached(catalog_cache, key=lambda self: 'newest_drops')
     def get_newest_drops(self):
         """Get Newest Drops section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -153,7 +153,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Newest Drops')
 
-    @cached(catalog_cache)
+    @cached(catalog_cache, key=lambda self: 'most_watched_shows')
     def get_most_watched_shows(self):
         """Get Most-Watched Shows section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -161,7 +161,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Most-Watched Shows')
 
-    @cached(catalog_cache)
+    @cached(catalog_cache, key=lambda self: 'new_anime_arrivals')
     def get_new_anime_arrivals(self):
         """Get New Anime Arrivals section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -169,7 +169,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'New Anime Arrivals')
 
-    @cached(catalog_cache)
+    @cached(catalog_cache, key=lambda self: 'most_watched_films')
     def get_most_watched_films(self):
         """Get Most-Watched Films section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
@@ -177,7 +177,7 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._parse_section(soup, 'Most-Watched Films')
 
-    @cached(catalog_cache)
+    @cached(catalog_cache, key=lambda self: 'latest_anime_movies')
     def get_latest_anime_movies(self):
         """Get Latest Anime Movies section"""
         resp = self.session.get(BASE_URL, timeout=TIMEOUT)
