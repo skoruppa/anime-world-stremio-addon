@@ -1,9 +1,15 @@
 import re
 import requests
 from flask import Blueprint, Response, request, abort
+from urllib.parse import unquote
+from cachetools import TTLCache
 from config import Config
+from .utils import get_random_agent
 
 proxy_bp = Blueprint('proxy', __name__)
+
+# Store subtitle mappings with TTL (1 hour expiration, max 1000 entries)
+subtitle_mappings = TTLCache(maxsize=1000, ttl=3600)
 
 @proxy_bp.route('/cdn/hls/<path:path>')
 def proxy_hls(path):
@@ -18,7 +24,7 @@ def proxy_hls(path):
     
     try:
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'User-Agent': get_random_agent(),
             'Referer': 'https://play.zephyrflick.top/'
         }
         
@@ -43,4 +49,33 @@ def proxy_hls(path):
         return Response(content, mimetype='application/vnd.apple.mpegurl')
     except Exception as e:
         print(f"Error proxying HLS: {e}")
+        abort(502)
+
+@proxy_bp.route('/subtitles/<subtitle_id>')
+def proxy_subtitle(subtitle_id):
+    """
+    Proxy subtitle files with correct content-type
+    """
+    original_url = subtitle_mappings.get(subtitle_id)
+    if not original_url:
+        abort(404)
+    
+    try:
+        headers = {
+            'User-Agent': get_random_agent(),
+            'Referer': 'https://play.zephyrflick.top/'
+        }
+        
+        resp = requests.get(original_url, headers=headers, timeout=30)
+        resp.raise_for_status()
+        
+        # Determine content type based on file extension
+        if subtitle_id.endswith('.srt'):
+            content_type = 'application/x-subrip'
+        else:
+            content_type = 'text/vtt'
+        
+        return Response(resp.content, mimetype=content_type)
+    except Exception as e:
+        print(f"Error proxying subtitle: {e}")
         abort(502)

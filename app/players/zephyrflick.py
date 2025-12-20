@@ -73,9 +73,20 @@ async def get_video_from_zephyrflick_player(player_url: str):
                         # Convert language name to ISO code
                         lang_code = 'eng' if 'english' in lang_name.lower() else lang_name.lower()[:3]
                         
+                        # Determine file extension from original URL
+                        file_ext = '.srt' if sub_url.endswith('.srt') else '.vtt'
+                        subtitle_id = f"{video_id}_{lang_code}{file_ext}"
+                        
+                        # Store mapping for proxy route
+                        from app.routes.proxy import subtitle_mappings
+                        subtitle_mappings[subtitle_id] = sub_url
+                        
+                        # Proxy subtitle URL through our server
+                        proxied_sub_url = f"{Config.PROTOCOL}://{Config.REDIRECT_URL}/subtitles/{subtitle_id}"
+                        
                         subtitles.append({
                             'id': f"{video_id}_{lang_code}",
-                            'url': sub_url,
+                            'url': proxied_sub_url,
                             'lang': lang_code
                         })
         except:
