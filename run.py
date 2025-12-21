@@ -30,13 +30,31 @@ def index():
     """
     Render the index page
     """
+    from flask import make_response
     from app.routes.manifest import MANIFEST
+    import hashlib
+    
     manifest_url = f'{Config.PROTOCOL}://{Config.REDIRECT_URL}/manifest.json'
     manifest_magnet = f'stremio://{Config.REDIRECT_URL}/manifest.json'
-    return render_template('index.html',
-                               manifest_url=manifest_url, 
-                               manifest_magnet=manifest_magnet,
-                               version=MANIFEST['version'])
+    
+    html = render_template('index.html',
+                          manifest_url=manifest_url, 
+                          manifest_magnet=manifest_magnet,
+                          version=MANIFEST['version'])
+    
+    response = make_response(html)
+    
+    # Generate ETag based on version for 304 support
+    etag = hashlib.md5(MANIFEST['version'].encode()).hexdigest()
+    response.set_etag(etag)
+    response.cache_control.max_age = 3600  # 1 hour
+    response.cache_control.public = True
+    
+    # Check if client has valid cache
+    if response.get_etag()[0] == request.headers.get('If-None-Match'):
+        return make_response('', 304)
+    
+    return response
 
 
 @app.route('/favicon.ico')
