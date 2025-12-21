@@ -60,14 +60,14 @@ async def addon_stream(content_type: str, content_id: str):
         abort(404)
 
     if len(parts) < 1 or not parts[0].startswith('tt'):
-        return respond_with({'streams': []})
+        return respond_with({'streams': []}, use_etag=False)
 
     imdb_id = parts[0]
     
     # Find or create slug mapping from IMDB ID
     slug = get_or_create_slug_mapping(imdb_id)
     if not slug:
-        return respond_with({'streams': []})
+        return respond_with({'streams': []}, use_etag=False)
     
     # For series: tt13706018:3:2, for movies: tt13706018
     if len(parts) == 3:
@@ -87,7 +87,7 @@ async def addon_stream(content_type: str, content_id: str):
             if stream:
                 streams.append(stream)
         
-        return respond_with({'streams': streams})
+        return respond_with({'streams': streams}, use_etag=False)
     except Exception as e:
         print(f"Error getting streams: {e}")
-        return respond_with({'streams': []})
+        return respond_with({'streams': []}, use_etag=False)

@@ -47,14 +47,14 @@ def generate_etag(data: dict) -> str:
 
 
 # Enable CORS
-def respond_with(data: dict, cache_time: int = None, client_cache_time: int = 0) -> Response:
+def respond_with(data: dict, cache_time: int = None, client_cache_time: int = 0, use_etag: bool = True) -> Response:
     """
     Respond with CORS headers to the client
     """
-    #    etag = generate_etag(data)
-
-    #    if request.headers.get('If-None-Match') == etag:
-    #        return Response(status=304)
+    if use_etag:
+        etag = generate_etag(data)
+        if request.headers.get('If-None-Match') == etag:
+            return Response(status=304)
 
     resp = jsonify(data)
     if cache_time:
@@ -62,7 +62,10 @@ def respond_with(data: dict, cache_time: int = None, client_cache_time: int = 0)
         resp.headers['CDN-Cache-Control'] = f'public, s-maxage={cache_time}, maxage={cache_time}'
         resp.headers['Vercel-CDN-Cache-Control'] = f'public, s-maxage={cache_time}'
         resp.headers['Cloudflare-CDN-Cache-Control'] = f'public, maxage={cache_time}'
-    #    resp.headers['ETag'] = etag
+    
+    if use_etag:
+        resp.headers['ETag'] = etag
+    
     resp.headers['Access-Control-Allow-Origin'] = "*"
     resp.headers['Access-Control-Allow-Headers'] = '*'
     return resp

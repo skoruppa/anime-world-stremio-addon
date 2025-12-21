@@ -16,9 +16,19 @@ class Mapping(Base):
 class Database:
     def __init__(self):
         if Config.DB_TYPE == 'postgresql':
-            engine = create_engine(Config.DB_CONNECTION_STRING)
+            engine = create_engine(
+                Config.DB_CONNECTION_STRING,
+                pool_size=5,
+                max_overflow=10,
+                pool_pre_ping=True,
+                pool_recycle=3600
+            )
         else:
-            engine = create_engine(f'sqlite:///{Config.DB_PATH}')
+            engine = create_engine(
+                f'sqlite:///{Config.DB_PATH}',
+                pool_size=5,
+                max_overflow=10
+            )
         
         Base.metadata.create_all(engine)
         session_factory = sessionmaker(bind=engine)
