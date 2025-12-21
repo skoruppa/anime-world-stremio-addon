@@ -11,6 +11,9 @@ failed_mappings_cache = TTLCache(maxsize=500, ttl=3600)
 # Cache for successful slug->imdb mappings (1 hour TTL, max 1000 entries)
 slug_to_imdb_cache = TTLCache(maxsize=1000, ttl=3600)
 
+# Cache for successful imdb->slug lookups (1 hour TTL, max 1000 entries)
+imdb_to_slug_cache = TTLCache(maxsize=1000, ttl=3600)
+
 def get_imdb_id_from_tmdb(tmdb_id: str, content_type: str) -> Optional[str]:
     """Get IMDB ID from TMDB ID"""
     if not Config.TMDB_API_KEY:
@@ -180,9 +183,14 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
     if imdb_id in failed_mappings_cache:
         return None
     
+    # Check cache first
+    if imdb_id in imdb_to_slug_cache:
+        return imdb_to_slug_cache[imdb_id]
+    
     # Check if mapping exists in DB
     slug = db.get_slug_by_imdb(imdb_id)
     if slug:
+        imdb_to_slug_cache[imdb_id] = slug
         return slug
     
     # Get TMDB details from IMDB ID
@@ -214,6 +222,7 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
     slug = matched.get('slug')
     if slug:
         db.set_mapping(slug, tmdb_id, imdb_id)
+        imdb_to_slug_cache[imdb_id] = slug
         return slug
     
     failed_mappings_cache[imdb_id] = True
