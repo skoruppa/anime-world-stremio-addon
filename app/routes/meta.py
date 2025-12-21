@@ -21,8 +21,13 @@ def addon_meta(meta_type: str, meta_id: str):
     if not meta_id.startswith('tt'):
         return respond_with({'meta': {}})
 
-    # Check if we know this is not anime
+    # Check if we know this is not anime (in-memory cache)
     if meta_id in failed_mappings_cache:
+        return respond_with({'meta': {}})
+    
+    # Check if we know this is not anime (database with TTL)
+    if db.is_failed_mapping(meta_id):
+        failed_mappings_cache[meta_id] = True
         return respond_with({'meta': {}})
     
     # Check cache first

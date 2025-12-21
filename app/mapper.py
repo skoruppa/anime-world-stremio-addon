@@ -179,8 +179,13 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
     """Get slug for IMDB ID, creating mapping if needed (IMDB → slug)"""
     from app.routes import wawin_client
     
-    # Check if we already tried and failed
+    # Check if we already tried and failed (in-memory cache)
     if imdb_id in failed_mappings_cache:
+        return None
+    
+    # Check if we already tried and failed (database with TTL)
+    if db.is_failed_mapping(imdb_id):
+        failed_mappings_cache[imdb_id] = True
         return None
     
     # Check cache first
@@ -197,6 +202,7 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
     tmdb_details = get_tmdb_details_from_imdb(imdb_id)
     if not tmdb_details:
         failed_mappings_cache[imdb_id] = True
+        db.add_failed_mapping(imdb_id)
         return None
     
     title = tmdb_details.get('title') or tmdb_details.get('name')
@@ -205,18 +211,21 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
     
     if not title:
         failed_mappings_cache[imdb_id] = True
+        db.add_failed_mapping(imdb_id)
         return None
     
     # Search on WatchAnimeWorld
     search_results = wawin_client.search_anime(title)
     if not search_results:
         failed_mappings_cache[imdb_id] = True
+        db.add_failed_mapping(imdb_id)
         return None
     
     # Match by poster (required)
     matched = match_by_poster(poster_path, search_results, tmdb_id, tmdb_details['media_type'])
     if not matched:
         failed_mappings_cache[imdb_id] = True
+        db.add_failed_mapping(imdb_id)
         return None
     
     slug = matched.get('slug')
@@ -226,4 +235,5 @@ def get_or_create_slug_mapping(imdb_id: str) -> Optional[str]:
         return slug
     
     failed_mappings_cache[imdb_id] = True
+    db.add_failed_mapping(imdb_id)
     return None

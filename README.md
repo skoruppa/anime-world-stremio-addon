@@ -92,8 +92,15 @@ DB_PATH=mappings.db
 ```
 
 4. **Run the addon**
+
+**Development:**
 ```bash
 python run.py
+```
+
+**Production (recommended):**
+```bash
+gunicorn -c gunicorn_config.py run:app
 ```
 
 The addon will be available at `http://localhost:5000`
