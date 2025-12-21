@@ -32,9 +32,17 @@ This unofficial Stremio addon allows users to access anime streams from [AnimeWo
 
 ## 🛠️ Installation
 
-To install the addon:
+### Quick Install
 
-1. Visit the addon website
+1. Visit **[https://anime-world-stremio-addon.onrender.com/](https://anime-world-stremio-addon.onrender.com/)**
+2. Click **"Install In Stremio"** button to install directly, or
+3. Copy the manifest URL and paste it into Stremio's addon search box
+
+### Manual Installation
+
+To install the addon manually:
+
+1. Visit [https://anime-world-stremio-addon.onrender.com/](https://anime-world-stremio-addon.onrender.com/)
 2. Copy the manifest URL
 3. Open Stremio and go to the addon search box
 4. Paste the copied manifest URL into the addon search box and press Enter
