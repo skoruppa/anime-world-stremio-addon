@@ -14,10 +14,18 @@ class Config:
     CACHE_TYPE = 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 600
 
-    DEBUG = os.getenv('FLASK_DEBUG', False)
+    DEBUG = os.getenv('FLASK_DEBUG', 'False')
+    
+    # TMDB API Key
+    TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
+    
+    # Database configuration
+    DB_TYPE = os.getenv('DB_TYPE', 'sqlite')  # 'sqlite' or 'postgresql'
+    DB_PATH = os.getenv('DB_PATH', 'mappings.db')  # For SQLite
+    DB_CONNECTION_STRING = os.getenv('DATABASE_URL', '')  # For PostgreSQL
 
     # Env dependent configs
-    if DEBUG in ["1", True, "False"]:
+    if DEBUG in ['1', 'True', 'true']:
         PROTOCOL = "http"
         REDIRECT_URL = f"{FLASK_HOST}:{FLASK_PORT}"
     else:

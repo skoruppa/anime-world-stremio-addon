@@ -1,9 +1,10 @@
 from urllib.parse import unquote
 from flask import Blueprint, abort
 
-from . import WAWIN_ID_PREFIX, wawin_client
+from . import wawin_client
 from .manifest import MANIFEST
 from .utils import respond_with, log_error
+from app.database import db
 
 meta_bp = Blueprint('meta', __name__)
 
@@ -15,11 +16,15 @@ def addon_meta(meta_type: str, meta_id: str):
     if meta_type not in MANIFEST['types']:
         abort(404)
 
-    if not meta_id.startswith(WAWIN_ID_PREFIX):
+    # meta_id is IMDB ID (e.g., tt13706018)
+    if not meta_id.startswith('tt'):
         return respond_with({'meta': {}}), 404
 
-    slug = meta_id.replace(f"{WAWIN_ID_PREFIX}:", '')
-
+    # Find slug from IMDB ID
+    slug = db.get_slug_by_imdb(meta_id)
+    if not slug:
+        return respond_with({'meta': {}}), 404
+    
     try:
         details = wawin_client.get_anime_details(slug)
         
@@ -41,7 +46,7 @@ def addon_meta(meta_type: str, meta_id: str):
         if details.get('type') == 'series':
             meta['videos'] = [
                 {
-                    'id': f"{WAWIN_ID_PREFIX}:{slug}:{ep['season']}:{ep['episode']}",
+                    'id': f"{meta_id}:{ep['season']}:{ep['episode']}",
                     'title': ep.get('title', f"Episode {ep['episode']}"),
                     'episode': ep['episode'],
                     'season': ep.get('season', 1),

@@ -8,8 +8,8 @@ from .utils import get_random_agent
 
 proxy_bp = Blueprint('proxy', __name__)
 
-# Store subtitle mappings with TTL (1 hour expiration, max 1000 entries)
-subtitle_mappings = TTLCache(maxsize=1000, ttl=3600)
+# Store subtitle mappings with TTL (1 hour expiration, max 500 entries)
+subtitle_mappings = TTLCache(maxsize=500, ttl=3600)
 
 @proxy_bp.route('/cdn/hls/<path:path>')
 def proxy_hls(path):

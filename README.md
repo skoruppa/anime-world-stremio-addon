@@ -1,5 +1,5 @@
 # WatchAnimeWorld Stremio Addon
-![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-Active-brightgreen.svg)
 
@@ -40,12 +40,82 @@ To install the addon:
 4. Paste the copied manifest URL into the addon search box and press Enter
 5. In Stremio, click install, and the addon will be added and ready for use
 
+## 🏠 Self-Hosting
+
+### Prerequisites
+- Python 3.8+
+- TMDB API Key (required) - Get it from [TMDB](https://www.themoviedb.org/settings/api)
+- PostgreSQL or SQLite database
+
+### Installation Steps
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/skoruppa/anime-world-stremio-addon.git
+cd anime-world-stremio-addon
+```
+
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Configure environment variables**
+
+Create a `.env` file in the root directory:
+
+```env
+# Flask Configuration
+FLASK_RUN_HOST=localhost
+FLASK_RUN_PORT=5000
+FLASK_DEBUG=False
+
+# TMDB API Key (REQUIRED)
+TMDB_API_KEY=your_tmdb_api_key_here
+
+# Database Configuration
+# For SQLite (default):
+DB_TYPE=sqlite
+DB_PATH=mappings.db
+
+# For PostgreSQL:
+# DB_TYPE=postgresql
+# DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+```
+
+4. **Run the addon**
+```bash
+python run.py
+```
+
+The addon will be available at `http://localhost:5000`
+
+### Docker Deployment (Optional)
+
+```bash
+docker build -t anime-world-addon .
+docker run -p 5000:5000 --env-file .env anime-world-addon
+```
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `TMDB_API_KEY` | **Yes** | - | TMDB API key for IMDB mapping |
+| `DB_TYPE` | No | `sqlite` | Database type (`sqlite` or `postgresql`) |
+| `DB_PATH` | No | `mappings.db` | SQLite database file path |
+| `DATABASE_URL` | No | - | PostgreSQL connection string |
+| `FLASK_RUN_HOST` | No | `localhost` | Host to bind the server |
+| `FLASK_RUN_PORT` | No | `5000` | Port to bind the server |
+| `FLASK_DEBUG` | No | `False` | Enable debug mode |
+
 ## 📝 API References
 
 This addon is developed using:
 
 - **Stremio Addon SDK**: [official documentation](https://github.com/Stremio/stremio-addon-sdk)
 - **WatchAnimeWorld.in**: HTML scraping for anime data
+- **TMDB API**: For IMDB ID mapping and metadata
 
 ## 🐛 Support
 

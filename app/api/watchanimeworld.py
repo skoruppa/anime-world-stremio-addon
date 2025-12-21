@@ -10,9 +10,9 @@ BASE_URL = "https://watchanimeworld.in"
 TIMEOUT = 30
 
 # TTL cache with 15 minutes expiration
-catalog_cache = TTLCache(maxsize=128, ttl=900)
-search_cache = TTLCache(maxsize=256, ttl=900)
-details_cache = TTLCache(maxsize=512, ttl=900)
+catalog_cache = TTLCache(maxsize=64, ttl=900)
+search_cache = TTLCache(maxsize=128, ttl=900)
+details_cache = TTLCache(maxsize=128, ttl=900)
 
 class WatchAnimeWorldAPI:
     """
