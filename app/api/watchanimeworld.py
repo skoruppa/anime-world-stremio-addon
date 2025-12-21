@@ -29,77 +29,81 @@ class WatchAnimeWorldAPI:
         """Parse a section from homepage by title"""
         results = []
         
-        # Check widget_list_episodes sections
-        for section in soup.find_all('section', class_='widget_list_episodes'):
-            title_elem = section.find('h3', class_='section-title')
-            if title_elem and section_title.lower() in title_elem.text.lower():
-                for slide in section.select('.swiper-slide'):
-                    article = slide.find('article')
-                    if not article:
-                        continue
-                    
-                    link = article.find('a', class_='lnk-blk')
-                    img = article.find('img')
-                    title = article.find('h2', class_='entry-title')
-                    
-                    if link and title:
-                        href = link.get('href', '')
-                        slug = href.rstrip('/').split('/')[-1]
-                        content_type = 'movie' if '/movies/' in href else 'series'
+        try:
+            # Check widget_list_episodes sections
+            for section in soup.find_all('section', class_='widget_list_episodes'):
+                title_elem = section.find('h3', class_='section-title')
+                if title_elem and section_title.lower() in title_elem.text.lower():
+                    for slide in section.select('.swiper-slide'):
+                        article = slide.find('article')
+                        if not article:
+                            continue
                         
-                        results.append({
-                            'title': title.text.strip(),
-                            'slug': slug,
-                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
-                            'type': content_type
-                        })
-        
-        # Check widget_list_movies_series sections
-        for section in soup.find_all('section', class_='widget_list_movies_series'):
-            title_elem = section.find('h3', class_='section-title')
-            if title_elem and section_title.lower() in title_elem.text.lower():
-                for slide in section.select('.swiper-slide'):
-                    article = slide.find('article')
-                    if not article:
-                        continue
-                    
-                    link = article.find('a', class_='lnk-blk')
-                    img = article.find('img')
-                    title = article.find('h2', class_='entry-title')
-                    
-                    if link and title:
-                        href = link.get('href', '')
-                        slug = href.rstrip('/').split('/')[-1]
-                        content_type = 'movie' if '/movies/' in href else 'series'
+                        link = article.find('a', class_='lnk-blk')
+                        img = article.find('img')
+                        title = article.find('h2', class_='entry-title')
                         
-                        results.append({
-                            'title': title.text.strip(),
-                            'slug': slug,
-                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
-                            'type': content_type
-                        })
-        
-        # Check widget_top sections (Most-Watched)
-        for section in soup.find_all('section', class_='widget_top'):
-            title_elem = section.find('h3', class_='widget-title')
-            if title_elem and section_title.lower() in title_elem.text.lower():
-                for item in section.select('.top-picks__item'):
-                    link = item.find('a', class_='lnk-blk')
-                    img = item.find('img')
-                    
-                    if link and img:
-                        href = link.get('href', '')
-                        parts = href.rstrip('/').split('/')
-                        slug = parts[-1] if parts else ''
-                        alt_text = img.get('alt', '').replace('Image ', '')
-                        content_type = 'movie' if '/movies/' in href else 'series'
+                        if link and title:
+                            href = link.get('href', '')
+                            slug = href.rstrip('/').split('/')[-1]
+                            content_type = 'movie' if '/movies/' in href else 'series'
+                            
+                            results.append({
+                                'title': title.text.strip(),
+                                'slug': slug,
+                                'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                                'type': content_type
+                            })
+            
+            # Check widget_list_movies_series sections
+            for section in soup.find_all('section', class_='widget_list_movies_series'):
+                title_elem = section.find('h3', class_='section-title')
+                if title_elem and section_title.lower() in title_elem.text.lower():
+                    for slide in section.select('.swiper-slide'):
+                        article = slide.find('article')
+                        if not article:
+                            continue
                         
-                        results.append({
-                            'title': alt_text.strip(),
-                            'slug': slug,
-                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
-                            'type': content_type
-                        })
+                        link = article.find('a', class_='lnk-blk')
+                        img = article.find('img')
+                        title = article.find('h2', class_='entry-title')
+                        
+                        if link and title:
+                            href = link.get('href', '')
+                            slug = href.rstrip('/').split('/')[-1]
+                            content_type = 'movie' if '/movies/' in href else 'series'
+                            
+                            results.append({
+                                'title': title.text.strip(),
+                                'slug': slug,
+                                'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                                'type': content_type
+                            })
+            
+            # Check widget_top sections (Most-Watched)
+            for section in soup.find_all('section', class_='widget_top'):
+                title_elem = section.find('h3', class_='widget-title')
+                if title_elem and section_title.lower() in title_elem.text.lower():
+                    for item in section.select('.top-picks__item'):
+                        link = item.find('a', class_='lnk-blk')
+                        img = item.find('img')
+                        
+                        if link and img:
+                            href = link.get('href', '')
+                            parts = href.rstrip('/').split('/')
+                            slug = parts[-1] if parts else ''
+                            alt_text = img.get('alt', '').replace('Image ', '')
+                            content_type = 'movie' if '/movies/' in href else 'series'
+                            
+                            results.append({
+                                'title': alt_text.strip(),
+                                'slug': slug,
+                                'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                                'type': content_type
+                            })
+        except RecursionError:
+            logging.error(f"RecursionError in _parse_section for: {section_title}")
+            return []
         
         return results
 
@@ -161,7 +165,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             return self._parse_section(soup, 'Newest Drops')
         except RecursionError:
             logging.error("RecursionError in get_newest_drops")
@@ -176,7 +180,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             return self._parse_section(soup, 'Most-Watched Shows')
         except RecursionError:
             logging.error("RecursionError in get_most_watched_shows")
@@ -191,7 +195,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             return self._parse_section(soup, 'New Anime Arrivals')
         except RecursionError:
             logging.error("RecursionError in get_new_anime_arrivals")
@@ -206,7 +210,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             return self._parse_section(soup, 'Most-Watched Films')
         except RecursionError:
             logging.error("RecursionError in get_most_watched_films")
@@ -221,7 +225,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             return self._parse_section(soup, 'Latest Anime Movies')
         except RecursionError:
             logging.error("RecursionError in get_latest_anime_movies")
@@ -240,7 +244,7 @@ class WatchAnimeWorldAPI:
             resp = self.session.get(url, params=params, timeout=TIMEOUT)
             resp.raise_for_status()
             
-            soup = BeautifulSoup(resp.text, 'html.parser')
+            soup = BeautifulSoup(resp.text, 'lxml')
             results = []
             
             # Search results are in #aa-movies section
