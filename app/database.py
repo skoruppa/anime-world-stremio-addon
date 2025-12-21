@@ -26,17 +26,19 @@ class Database:
         if Config.DB_TYPE == 'postgresql':
             engine = create_engine(
                 Config.DB_CONNECTION_STRING,
-                pool_size=5,
-                max_overflow=10,
+                pool_size=3,
+                max_overflow=5,
                 pool_pre_ping=True,
-                pool_recycle=3600,
-                connect_args={'sslmode': 'require'}
+                pool_recycle=1800,
+                connect_args={'sslmode': 'require'},
+                echo=False
             )
         else:
             engine = create_engine(
                 f'sqlite:///{Config.DB_PATH}',
-                pool_size=5,
-                max_overflow=10
+                pool_size=3,
+                max_overflow=5,
+                echo=False
             )
         
         Base.metadata.create_all(engine)

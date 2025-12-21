@@ -7,12 +7,13 @@ from cachetools import TTLCache, cached
 import time
 
 BASE_URL = "https://watchanimeworld.in"
-TIMEOUT = 30
+TIMEOUT = 15
 
 # TTL cache with 15 minutes expiration
-catalog_cache = TTLCache(maxsize=64, ttl=900)
-search_cache = TTLCache(maxsize=128, ttl=900)
-details_cache = TTLCache(maxsize=128, ttl=900)
+catalog_cache = TTLCache(maxsize=128, ttl=900)
+search_cache = TTLCache(maxsize=256, ttl=900)
+details_cache = TTLCache(maxsize=512, ttl=1800)
+streams_cache = TTLCache(maxsize=256, ttl=600)
 
 class WatchAnimeWorldAPI:
     """
@@ -22,8 +23,18 @@ class WatchAnimeWorldAPI:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
         })
+        # Connection pooling
+        adapter = requests.adapters.HTTPAdapter(
+            pool_connections=10,
+            pool_maxsize=20,
+            max_retries=2
+        )
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
 
     def _parse_section(self, soup, section_title):
         """Parse a section from homepage by title"""
@@ -383,6 +394,11 @@ class WatchAnimeWorldAPI:
             
             if streams:
                 return {'streams': streams}
+            else:
+                # Cache tylko puste odpowiedzi (brak streamów)
+                cache_key = f"{slug}_{season}_{episode}"
+                streams_cache[cache_key] = {'streams': []}
+                return {'streams': []}
         except:
             pass
         

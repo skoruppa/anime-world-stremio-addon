@@ -9,13 +9,14 @@ bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"  # Render uses PORT env variable
 backlog = 2048
 
 # Worker processes
-workers = int(os.getenv('GUNICORN_WORKERS', '3'))  # Default 3 workers
-worker_class = 'sync'  # Use sync workers - gevent causes RecursionError with BeautifulSoup
+workers = int(os.getenv('GUNICORN_WORKERS', '2'))  # Default 2 workers (optimized for 512MB)
+worker_class = 'sync'
 worker_connections = 1000
-max_requests = 10000
-max_requests_jitter = 1000
-timeout = 120
-keepalive = 5
+max_requests = 5000
+max_requests_jitter = 500
+timeout = 60
+keepalive = 2
+threads = 2
 
 # Logging
 accesslog = '-'
