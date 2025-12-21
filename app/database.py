@@ -24,11 +24,12 @@ class FailedMapping(Base):
 class Database:
     def __init__(self):
         if Config.DB_TYPE == 'postgresql':
-            # Use NullPool for gevent compatibility - creates new connection per request
             engine = create_engine(
                 Config.DB_CONNECTION_STRING,
-                poolclass=NullPool,
-                connect_args={'sslmode': 'require'}
+                pool_size=5,
+                max_overflow=10,
+                pool_pre_ping=True,
+                pool_recycle=3600
             )
         else:
             engine = create_engine(

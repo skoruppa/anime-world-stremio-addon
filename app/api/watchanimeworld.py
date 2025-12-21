@@ -164,7 +164,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Newest Drops')
             if results:  # Only cache non-empty results
                 catalog_cache['newest_drops'] = results
@@ -181,7 +181,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Most-Watched Shows')
             if results:
                 catalog_cache['most_watched_shows'] = results
@@ -198,7 +198,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'New Anime Arrivals')
             if results:
                 catalog_cache['new_anime_arrivals'] = results
@@ -215,7 +215,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Most-Watched Films')
             if results:
                 catalog_cache['most_watched_films'] = results
@@ -232,7 +232,7 @@ class WatchAnimeWorldAPI:
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Latest Anime Movies')
             if results:
                 catalog_cache['latest_anime_movies'] = results
@@ -254,7 +254,7 @@ class WatchAnimeWorldAPI:
             resp = self.session.get(url, params=params, timeout=TIMEOUT)
             resp.raise_for_status()
             
-            soup = BeautifulSoup(resp.text, 'html5lib')
+            soup = BeautifulSoup(resp.text, 'html.parser')
             results = []
             
             # Search results are in #aa-movies section

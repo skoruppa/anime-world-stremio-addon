@@ -10,7 +10,7 @@ backlog = 2048
 
 # Worker processes
 workers = int(os.getenv('GUNICORN_WORKERS', '3'))  # Default 3 workers
-worker_class = 'gevent'  # Use gevent workers for async I/O
+worker_class = 'sync'  # Use sync workers - gevent causes RecursionError with BeautifulSoup
 worker_connections = 1000
 max_requests = 10000
 max_requests_jitter = 1000
