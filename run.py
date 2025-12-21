@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, make_response, request
 from flask_compress import Compress
 from app.routes.catalog import catalog_bp
 from app.routes.manifest import manifest_blueprint
@@ -30,7 +30,6 @@ def index():
     """
     Render the index page
     """
-    from flask import make_response
     from app.routes.manifest import MANIFEST
     import hashlib
     
@@ -50,8 +49,8 @@ def index():
     response.cache_control.max_age = 3600  # 1 hour
     response.cache_control.public = True
     
-    # Check if client has valid cache
-    if response.get_etag()[0] == request.headers.get('If-None-Match'):
+    # Check if client sent If-None-Match header
+    if request.headers.get('If-None-Match') == etag:
         return make_response('', 304)
     
     return response
