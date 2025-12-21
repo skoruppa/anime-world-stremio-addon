@@ -158,80 +158,122 @@ class WatchAnimeWorldAPI:
     @cached(catalog_cache, key=lambda self: 'newest_drops')
     def get_newest_drops(self):
         """Get Newest Drops section"""
-        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        return self._parse_section(soup, 'Newest Drops')
+        try:
+            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._parse_section(soup, 'Newest Drops')
+        except RecursionError:
+            logging.error("RecursionError in get_newest_drops")
+            return []
+        except Exception as e:
+            logging.error(f"Error in get_newest_drops: {e}")
+            return []
 
     @cached(catalog_cache, key=lambda self: 'most_watched_shows')
     def get_most_watched_shows(self):
         """Get Most-Watched Shows section"""
-        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        return self._parse_section(soup, 'Most-Watched Shows')
+        try:
+            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._parse_section(soup, 'Most-Watched Shows')
+        except RecursionError:
+            logging.error("RecursionError in get_most_watched_shows")
+            return []
+        except Exception as e:
+            logging.error(f"Error in get_most_watched_shows: {e}")
+            return []
 
     @cached(catalog_cache, key=lambda self: 'new_anime_arrivals')
     def get_new_anime_arrivals(self):
         """Get New Anime Arrivals section"""
-        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        return self._parse_section(soup, 'New Anime Arrivals')
+        try:
+            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._parse_section(soup, 'New Anime Arrivals')
+        except RecursionError:
+            logging.error("RecursionError in get_new_anime_arrivals")
+            return []
+        except Exception as e:
+            logging.error(f"Error in get_new_anime_arrivals: {e}")
+            return []
 
     @cached(catalog_cache, key=lambda self: 'most_watched_films')
     def get_most_watched_films(self):
         """Get Most-Watched Films section"""
-        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        return self._parse_section(soup, 'Most-Watched Films')
+        try:
+            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._parse_section(soup, 'Most-Watched Films')
+        except RecursionError:
+            logging.error("RecursionError in get_most_watched_films")
+            return []
+        except Exception as e:
+            logging.error(f"Error in get_most_watched_films: {e}")
+            return []
 
     @cached(catalog_cache, key=lambda self: 'latest_anime_movies')
     def get_latest_anime_movies(self):
         """Get Latest Anime Movies section"""
-        resp = self.session.get(BASE_URL, timeout=TIMEOUT)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        return self._parse_section(soup, 'Latest Anime Movies')
+        try:
+            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp.raise_for_status()
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._parse_section(soup, 'Latest Anime Movies')
+        except RecursionError:
+            logging.error("RecursionError in get_latest_anime_movies")
+            return []
+        except Exception as e:
+            logging.error(f"Error in get_latest_anime_movies: {e}")
+            return []
 
     @cached(search_cache)
     def search_anime(self, query: str):
         """Search for anime"""
-        url = f"{BASE_URL}/"
-        params = {'s': query}
-        
-        resp = self.session.get(url, params=params, timeout=TIMEOUT)
-        resp.raise_for_status()
-        
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        results = []
-        
-        # Search results are in #aa-movies section
-        search_section = soup.select_one('#aa-movies')
-        if search_section:
-            for li in search_section.select('ul.post-lst > li'):
-                article = li.find('article')
-                if not article:
-                    continue
-                
-                link = article.find('a', class_='lnk-blk')
-                img = article.find('img')
-                title = article.find('h2', class_='entry-title')
-                
-                if link and title:
-                    href = link.get('href', '')
-                    slug = href.rstrip('/').split('/')[-1]
-                    content_type = 'movie' if '/movies/' in href else 'series'
+        try:
+            url = f"{BASE_URL}/"
+            params = {'s': query}
+            
+            resp = self.session.get(url, params=params, timeout=TIMEOUT)
+            resp.raise_for_status()
+            
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            results = []
+            
+            # Search results are in #aa-movies section
+            search_section = soup.select_one('#aa-movies')
+            if search_section:
+                for li in search_section.select('ul.post-lst > li'):
+                    article = li.find('article')
+                    if not article:
+                        continue
                     
-                    results.append({
-                        'title': title.text.strip(),
-                        'slug': slug,
-                        'poster': img.get('src', '').replace('//', 'https://') if img else None,
-                        'type': content_type
-                    })
-        
-        return results
+                    link = article.find('a', class_='lnk-blk')
+                    img = article.find('img')
+                    title = article.find('h2', class_='entry-title')
+                    
+                    if link and title:
+                        href = link.get('href', '')
+                        slug = href.rstrip('/').split('/')[-1]
+                        content_type = 'movie' if '/movies/' in href else 'series'
+                        
+                        results.append({
+                            'title': title.text.strip(),
+                            'slug': slug,
+                            'poster': img.get('src', '').replace('//', 'https://') if img else None,
+                            'type': content_type
+                        })
+            
+            return results
+        except RecursionError:
+            logging.error(f"RecursionError in search_anime for query: {query}")
+            return []
+        except Exception as e:
+            logging.error(f"Error in search_anime: {e}")
+            return []
 
     @cached(details_cache)
     def get_anime_details(self, slug: str):
