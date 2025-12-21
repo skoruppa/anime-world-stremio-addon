@@ -18,18 +18,18 @@ def addon_meta(meta_type: str, meta_id: str):
 
     # meta_id is IMDB ID (e.g., tt13706018)
     if not meta_id.startswith('tt'):
-        return respond_with({'meta': {}}), 404
+        return respond_with({'meta': {}})
 
     # Find slug from IMDB ID
     slug = db.get_slug_by_imdb(meta_id)
     if not slug:
-        return respond_with({'meta': {}}), 404
+        return respond_with({'meta': {}})
     
     try:
         details = wawin_client.get_anime_details(slug)
         
         if not details:
-            return respond_with({'meta': {}}), 404
+            return respond_with({'meta': {}})
         
         meta = {
             'id': meta_id,
@@ -58,4 +58,4 @@ def addon_meta(meta_type: str, meta_id: str):
         return respond_with({'meta': meta}, 86400)
     except Exception as e:
         log_error(e)
-        return respond_with({'meta': {}}), 404
+        return respond_with({'meta': {}})
