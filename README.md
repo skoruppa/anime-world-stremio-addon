@@ -123,6 +123,7 @@ docker run -p 5000:5000 --env-file .env anime-world-addon
 | `FLASK_RUN_HOST` | No | `localhost` | Host to bind the server |
 | `FLASK_RUN_PORT` | No | `5000` | Port to bind the server |
 | `FLASK_DEBUG` | No | `False` | Enable debug mode |
+| `GUNICORN_WORKERS` | No | `2` | Number of gunicorn workers |
 
 ## 📝 API References
 

@@ -1,15 +1,15 @@
 """
 Gunicorn configuration file with gevent workers
+Optimized for low-memory environments (Render Free: 512MB)
 """
 import os
-import multiprocessing
 
 # Server socket
 bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"  # Render uses PORT env variable
 backlog = 2048
 
 # Worker processes
-workers = int(os.getenv('GUNICORN_WORKERS', multiprocessing.cpu_count() * 2 + 1))
+workers = int(os.getenv('GUNICORN_WORKERS', '2'))  # Default 2 for low memory environments
 worker_class = 'gevent'  # Use gevent workers for async I/O
 worker_connections = 1000
 max_requests = 10000
