@@ -14,13 +14,13 @@ MANIFEST = {
     'idPrefixes': ['tt'],
     'contactEmail': 'skoruppa@gmail.com',
     'catalogs': [
-        {'type': 'Anime World India', 'id': 'newest_drops', 'name': 'Newest Drops'},
-        {'type': 'Anime World India', 'id': 'most_watched_shows', 'name': 'Most-Watched Shows'},
-        {'type': 'Anime World India', 'id': 'new_arrivals', 'name': 'New Anime Arrivals'},
-        {'type': 'Anime World India', 'id': 'most_watched_films', 'name': 'Most-Watched Films'},
-        {'type': 'Anime World India', 'id': 'latest_movies', 'name': 'Latest Anime Movies'},
+        {'type': 'anime', 'id': 'newest_drops', 'name': 'Newest Drops'},
+        {'type': 'anime', 'id': 'most_watched_shows', 'name': 'Most-Watched Shows'},
+        {'type': 'anime', 'id': 'new_arrivals', 'name': 'New Anime Arrivals'},
+        {'type': 'anime', 'id': 'most_watched_films', 'name': 'Most-Watched Films'},
+        {'type': 'anime', 'id': 'latest_movies', 'name': 'Latest Anime Movies'},
         {
-            'type': 'Anime World India',
+            'type': 'anime',
             'id': 'search',
             'name': 'Search',
             'extra': [{'name': 'search', 'isRequired': True}]
