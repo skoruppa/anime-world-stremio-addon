@@ -159,80 +159,90 @@ class WatchAnimeWorldAPI:
         soup = BeautifulSoup(resp.text, 'html.parser')
         return self._get_episodes_from_html(soup)
 
-    @cached(catalog_cache, key=lambda self: 'newest_drops')
     def get_newest_drops(self):
         """Get Newest Drops section"""
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'lxml')
-            return self._parse_section(soup, 'Newest Drops')
+            soup = BeautifulSoup(resp.text, 'html5lib')
+            results = self._parse_section(soup, 'Newest Drops')
+            if results:  # Only cache non-empty results
+                catalog_cache['newest_drops'] = results
+            return results
         except RecursionError:
             logging.error("RecursionError in get_newest_drops")
-            return []
+            return catalog_cache.get('newest_drops', [])
         except Exception as e:
             logging.error(f"Error in get_newest_drops: {e}")
-            return []
+            return catalog_cache.get('newest_drops', [])
 
-    @cached(catalog_cache, key=lambda self: 'most_watched_shows')
     def get_most_watched_shows(self):
         """Get Most-Watched Shows section"""
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'lxml')
-            return self._parse_section(soup, 'Most-Watched Shows')
+            soup = BeautifulSoup(resp.text, 'html5lib')
+            results = self._parse_section(soup, 'Most-Watched Shows')
+            if results:
+                catalog_cache['most_watched_shows'] = results
+            return results
         except RecursionError:
             logging.error("RecursionError in get_most_watched_shows")
-            return []
+            return catalog_cache.get('most_watched_shows', [])
         except Exception as e:
             logging.error(f"Error in get_most_watched_shows: {e}")
-            return []
+            return catalog_cache.get('most_watched_shows', [])
 
-    @cached(catalog_cache, key=lambda self: 'new_anime_arrivals')
     def get_new_anime_arrivals(self):
         """Get New Anime Arrivals section"""
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'lxml')
-            return self._parse_section(soup, 'New Anime Arrivals')
+            soup = BeautifulSoup(resp.text, 'html5lib')
+            results = self._parse_section(soup, 'New Anime Arrivals')
+            if results:
+                catalog_cache['new_anime_arrivals'] = results
+            return results
         except RecursionError:
             logging.error("RecursionError in get_new_anime_arrivals")
-            return []
+            return catalog_cache.get('new_anime_arrivals', [])
         except Exception as e:
             logging.error(f"Error in get_new_anime_arrivals: {e}")
-            return []
+            return catalog_cache.get('new_anime_arrivals', [])
 
-    @cached(catalog_cache, key=lambda self: 'most_watched_films')
     def get_most_watched_films(self):
         """Get Most-Watched Films section"""
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'lxml')
-            return self._parse_section(soup, 'Most-Watched Films')
+            soup = BeautifulSoup(resp.text, 'html5lib')
+            results = self._parse_section(soup, 'Most-Watched Films')
+            if results:
+                catalog_cache['most_watched_films'] = results
+            return results
         except RecursionError:
             logging.error("RecursionError in get_most_watched_films")
-            return []
+            return catalog_cache.get('most_watched_films', [])
         except Exception as e:
             logging.error(f"Error in get_most_watched_films: {e}")
-            return []
+            return catalog_cache.get('most_watched_films', [])
 
-    @cached(catalog_cache, key=lambda self: 'latest_anime_movies')
     def get_latest_anime_movies(self):
         """Get Latest Anime Movies section"""
         try:
             resp = self.session.get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
-            soup = BeautifulSoup(resp.text, 'lxml')
-            return self._parse_section(soup, 'Latest Anime Movies')
+            soup = BeautifulSoup(resp.text, 'html5lib')
+            results = self._parse_section(soup, 'Latest Anime Movies')
+            if results:
+                catalog_cache['latest_anime_movies'] = results
+            return results
         except RecursionError:
             logging.error("RecursionError in get_latest_anime_movies")
-            return []
+            return catalog_cache.get('latest_anime_movies', [])
         except Exception as e:
             logging.error(f"Error in get_latest_anime_movies: {e}")
-            return []
+            return catalog_cache.get('latest_anime_movies', [])
 
     @cached(search_cache)
     def search_anime(self, query: str):
@@ -244,7 +254,7 @@ class WatchAnimeWorldAPI:
             resp = self.session.get(url, params=params, timeout=TIMEOUT)
             resp.raise_for_status()
             
-            soup = BeautifulSoup(resp.text, 'lxml')
+            soup = BeautifulSoup(resp.text, 'html5lib')
             results = []
             
             # Search results are in #aa-movies section
