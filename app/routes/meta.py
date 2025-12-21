@@ -5,6 +5,7 @@ from . import wawin_client
 from .manifest import MANIFEST
 from .utils import respond_with, log_error
 from app.database import db
+from app.mapper import imdb_to_slug_cache, failed_mappings_cache
 
 meta_bp = Blueprint('meta', __name__)
 
@@ -20,8 +21,19 @@ def addon_meta(meta_type: str, meta_id: str):
     if not meta_id.startswith('tt'):
         return respond_with({'meta': {}})
 
-    # Find slug from IMDB ID
-    slug = db.get_slug_by_imdb(meta_id)
+    # Check if we know this is not anime
+    if meta_id in failed_mappings_cache:
+        return respond_with({'meta': {}})
+    
+    # Check cache first
+    if meta_id in imdb_to_slug_cache:
+        slug = imdb_to_slug_cache[meta_id]
+    else:
+        # Find slug from IMDB ID
+        slug = db.get_slug_by_imdb(meta_id)
+        if slug:
+            imdb_to_slug_cache[meta_id] = slug
+    
     if not slug:
         return respond_with({'meta': {}})
     
