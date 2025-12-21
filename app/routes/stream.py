@@ -1,29 +1,35 @@
-import asyncio
 import urllib.parse
 from flask import Blueprint, abort
 from .manifest import MANIFEST
 
 from app.routes import wawin_client
 from app.routes.utils import respond_with
-from app.players.zephyrflick import get_video_from_zephyrflick_player
 from app.database import db
 from app.mapper import get_or_create_slug_mapping
 
 stream_bp = Blueprint('stream', __name__)
 
 
-async def process_stream(stream_data):
+def process_stream_sync(stream_data):
     """Process a single stream source"""
+    from app.players.zephyrflick import get_video_from_zephyrflick_player
+    import asyncio
+    
     player = stream_data.get('player')
     url = stream_data.get('url')
     
-    video_url = None
-    quality = 'auto'
-    headers = None
-    subtitles = []
-    
     if player == 'zephyrflick':
-        video_url, quality, headers, subtitles = await get_video_from_zephyrflick_player(url)
+        # Run async function in new event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            video_url, quality, headers, subtitles = loop.run_until_complete(
+                get_video_from_zephyrflick_player(url)
+            )
+        finally:
+            loop.close()
+    else:
+        return None
     
     if not video_url:
         return None
@@ -46,7 +52,7 @@ async def process_stream(stream_data):
 
 
 @stream_bp.route('/stream/<content_type>/<content_id>.json')
-async def addon_stream(content_type: str, content_id: str):
+def addon_stream(content_type: str, content_id: str):
     """
     Provide stream URLs
     :param content_type: The type of content
@@ -83,7 +89,7 @@ async def addon_stream(content_type: str, content_id: str):
         streams = []
         
         for stream_data in data.get('streams', []):
-            stream = await process_stream(stream_data)
+            stream = process_stream_sync(stream_data)
             if stream:
                 streams.append(stream)
         
