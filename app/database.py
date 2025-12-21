@@ -30,7 +30,7 @@ class Database:
                 max_overflow=10,
                 pool_pre_ping=True,
                 pool_recycle=3600,
-                connect_args=connect_args
+                connect_args={'sslmode': 'require'}
             )
         else:
             engine = create_engine(
