@@ -1,4 +1,4 @@
-# WatchAnimeWorld Stremio Addon
+# Anime World India Stremio Addon
 ![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-Active-brightgreen.svg)
@@ -127,7 +127,7 @@ This addon is developed using:
 - **WatchAnimeWorld.in**: Website providing all the anime
 - **TMDB API**: For IMDB ID mapping and metadata
 
-## 🐛 Support
+## 🐛 Help
 
 If you encounter any issues or have any questions regarding the addon, feel free to report them in the [issues section](https://github.com/skoruppa/anime-world-stremio-addon/issues).
 
