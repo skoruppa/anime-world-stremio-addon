@@ -4,19 +4,21 @@ Optimized for low-memory environments (Render Free: 512MB)
 """
 import os
 
+from gevent import monkey
+monkey.patch_all()
+
 # Server socket
 bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"  # Render uses PORT env variable
 backlog = 2048
 
 # Worker processes
-workers = int(os.getenv('GUNICORN_WORKERS', '3')) 
-worker_class = 'sync'
+workers = int(os.getenv('GUNICORN_WORKERS', '3'))
+worker_class = 'gevent'
 worker_connections = 1000
 max_requests = 5000
 max_requests_jitter = 500
 timeout = 60
 keepalive = 2
-threads = 2
 
 # Logging
 accesslog = '-'
