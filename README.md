@@ -1,5 +1,5 @@
 # WatchAnimeWorld Stremio Addon
-![Version](https://img.shields.io/badge/version-0.0.2-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-Active-brightgreen.svg)
 
@@ -35,8 +35,9 @@ This unofficial Stremio addon allows users to access anime streams from [AnimeWo
 ### Quick Install
 
 1. Visit **[https://anime-world-stremio-addon.onrender.com/](https://anime-world-stremio-addon.onrender.com/)**
-2. Click **"Install In Stremio"** button to install directly, or
-3. Copy the manifest URL and paste it into Stremio's addon search box
+2. Click **"Install In Stremio"** button 
+3. In Stremio, click install, and the addon will be added and ready for use
+
 
 ### Manual Installation
 
@@ -105,32 +106,25 @@ gunicorn -c gunicorn_config.py run:app
 
 The addon will be available at `http://localhost:5000`
 
-### Docker Deployment (Optional)
-
-```bash
-docker build -t anime-world-addon .
-docker run -p 5000:5000 --env-file .env anime-world-addon
-```
-
 ### Environment Variables
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `TMDB_API_KEY` | **Yes** | - | TMDB API key for IMDB mapping |
-| `DB_TYPE` | No | `sqlite` | Database type (`sqlite` or `postgresql`) |
+| Variable | Required | Default       | Description |
+|----------|----------|---------------|-------------|
+| `TMDB_API_KEY` | **Yes** | -             | TMDB API key for IMDB mapping |
+| `DB_TYPE` | No | `sqlite`      | Database type (`sqlite` or `postgresql`) |
 | `DB_PATH` | No | `mappings.db` | SQLite database file path |
-| `DATABASE_URL` | No | - | PostgreSQL connection string |
-| `FLASK_RUN_HOST` | No | `localhost` | Host to bind the server |
-| `FLASK_RUN_PORT` | No | `5000` | Port to bind the server |
-| `FLASK_DEBUG` | No | `False` | Enable debug mode |
-| `GUNICORN_WORKERS` | No | `2` | Number of gunicorn workers |
+| `DATABASE_URL` | No | -             | PostgreSQL connection string |
+| `FLASK_RUN_HOST` | No | `localhost`   | Host to bind the server |
+| `FLASK_RUN_PORT` | No | `5000`        | Port to bind the server |
+| `FLASK_DEBUG` | No | `False`       | Enable debug mode |
+| `GUNICORN_WORKERS` | No | `3`           | Number of gunicorn workers |
 
 ## 📝 API References
 
 This addon is developed using:
 
 - **Stremio Addon SDK**: [official documentation](https://github.com/Stremio/stremio-addon-sdk)
-- **WatchAnimeWorld.in**: HTML scraping for anime data
+- **WatchAnimeWorld.in**: Website providing all the anime
 - **TMDB API**: For IMDB ID mapping and metadata
 
 ## 🐛 Support

@@ -9,7 +9,7 @@ bind = f"0.0.0.0:{os.getenv('PORT', '5000')}"  # Render uses PORT env variable
 backlog = 2048
 
 # Worker processes
-workers = int(os.getenv('GUNICORN_WORKERS', '2'))  # Default 2 workers (optimized for 512MB)
+workers = int(os.getenv('GUNICORN_WORKERS', '3')) 
 worker_class = 'sync'
 worker_connections = 1000
 max_requests = 5000
