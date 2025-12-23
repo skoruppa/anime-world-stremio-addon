@@ -43,11 +43,6 @@ async def get_video_from_zephyrflick_player(player_url: str):
         video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}')
 
         stream_headers = None
-        # Headers for stream (without X-Requested-With)
-        # stream_headers = {
-        #     'User-Agent': get_random_agent(),
-        #     'Referer': player_url
-        # }
         
         # Get subtitles from player page
         subtitles = []

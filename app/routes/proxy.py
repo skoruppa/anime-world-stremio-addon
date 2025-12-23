@@ -46,7 +46,12 @@ def proxy_hls(path):
             flags=re.MULTILINE
         )
         
-        return Response(content, mimetype='application/vnd.apple.mpegurl')
+        response = Response(content, mimetype='application/vnd.apple.mpegurl')
+        # Add CORS headers for Stremio Web
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = '*'
+        return response
     except Exception as e:
         print(f"Error proxying HLS: {e}")
         abort(502)
@@ -75,7 +80,12 @@ def proxy_subtitle(subtitle_id):
         else:
             content_type = 'text/vtt'
         
-        return Response(resp.content, mimetype=content_type)
+        response = Response(resp.content, mimetype=content_type)
+        # Add CORS headers
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, HEAD, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = '*'
+        return response
     except Exception as e:
         print(f"Error proxying subtitle: {e}")
         abort(502)
