@@ -19,15 +19,33 @@ def process_stream_sync(stream_data):
     url = stream_data.get('url')
     
     if player == 'zephyrflick':
-        # Run async function in new event loop
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         try:
-            video_url, quality, headers, subtitles = loop.run_until_complete(
-                get_video_from_zephyrflick_player(url)
-            )
-        finally:
-            loop.close()
+            # Get or create event loop (gevent compatible)
+            try:
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If loop is running (gevent), create new one
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    video_url, quality, headers, subtitles = loop.run_until_complete(
+                        get_video_from_zephyrflick_player(url)
+                    )
+                    loop.close()
+                else:
+                    video_url, quality, headers, subtitles = loop.run_until_complete(
+                        get_video_from_zephyrflick_player(url)
+                    )
+            except RuntimeError:
+                # No event loop, create new one
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                video_url, quality, headers, subtitles = loop.run_until_complete(
+                    get_video_from_zephyrflick_player(url)
+                )
+                loop.close()
+        except Exception as e:
+            print(f"Error processing stream: {e}")
+            return None
     else:
         return None
     
