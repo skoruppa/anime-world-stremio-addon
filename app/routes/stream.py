@@ -54,11 +54,14 @@ def process_stream_sync(stream_data):
     
     stream_obj = {
         'title': f'[{player}][{quality}]',
-        'url': video_url
+        'url': video_url,
+        'behaviorHints': {
+            'notWebReady': True  # HLS without CORS - not playable in Stremio Web
+        }
     }
     
     if headers:
-        stream_obj['behaviorHints'] = {'proxyHeaders': headers}
+        stream_obj['behaviorHints']['proxyHeaders'] = headers
     
     if subtitles:
         stream_obj['subtitles'] = [
