@@ -28,7 +28,7 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" id="advancedCheck" {{ 'checked' if lang else '' }} onchange="toggleLanguageSelect()">
                                         <label class="form-check-label text-white" for="advancedCheck">
-                                            Advanced: Define default audio track
+                                            Advanced:&nbsp;<span class="label-break">Define default audio track</span>
                                             <span class="info-icon" onclick="toggleTooltip(event)">
                                                 <i class="bi bi-info-circle"></i>
                                                 <span class="tooltip-text">Some devices can't handle m3u8 files with multiple audio tracks (e.g., WebOS, Tizen), preventing users from changing audio tracks while watching. This option will attempt to modify the m3u8 file to force the selected audio track as the default one (if available).</span>
