@@ -49,6 +49,9 @@
         .text-accent { color: #28c2bd !important; }
         a { color: #28c2bd; text-decoration: none; }
         a:hover { color: #20a09d; }
+        .form-check-input:checked { background-color: #28c2bd; border-color: #28c2bd; }
+        .form-select { background-color: #1a1a1a !important; color: #28c2bd !important; border: 1px solid #28c2bd !important; }
+        .form-select option { background-color: #1a1a1a; color: #28c2bd; }
     </style>
 </head>
 <body>
@@ -66,6 +69,28 @@
                         <div class="card border-0 shadow-lg">
                             <div class="card-body p-4 p-md-5">
                                 <p class="text-center text-white-50 mb-4">Stream anime in Hindi, Tamil, Telugu & English with subtitles</p>
+                                
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="advancedCheck" {{ 'checked' if lang else '' }} onchange="toggleLanguageSelect()">
+                                        <label class="form-check-label text-white" for="advancedCheck">
+                                            Advanced: Define default audio track
+                                        </label>
+                                    </div>
+                                    <small class="text-white-50 d-block mt-2">
+                                        Some devices can't handle m3u8 files with multiple audio tracks (e.g., LG TV), preventing users from changing audio tracks while watching. This option will attempt to modify the m3u8 file to force the selected audio track as the default one (if available).
+                                    </small>
+                                    <div id="languageSelectDiv" class="mt-3" style="display: {{ 'block' if lang else 'none' }};">
+                                        <label for="languageSelect" class="form-label text-white-50 small">Select default audio language</label>
+                                        <select class="form-select" id="languageSelect" onchange="updateManifestUrl()">
+                                            <option value="hin" {{ 'selected' if lang == 'hin' else '' }}>Hindi</option>
+                                            <option value="tam" {{ 'selected' if lang == 'tam' else '' }}>Tamil</option>
+                                            <option value="tel" {{ 'selected' if lang == 'tel' else '' }}>Telugu</option>
+                                            <option value="jpn" {{ 'selected' if lang == 'jpn' else '' }}>Japanese</option>
+                                            <option value="eng" {{ 'selected' if lang == 'eng' else '' }}>English</option>
+                                        </select>
+                                    </div>
+                                </div>
                                 
                                 <div class="mb-4">
                                     <label for="manifest_url" class="form-label text-white-50 small">Manifest URL</label>

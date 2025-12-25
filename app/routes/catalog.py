@@ -19,8 +19,10 @@ def _is_valid_catalog(catalog_type: str, catalog_id: str):
 
 @catalog_bp.route('/catalog/<catalog_type>/<catalog_id>.json')
 @catalog_bp.route('/catalog/<catalog_type>/<catalog_id>/search=<search>.json')
+@catalog_bp.route('/<lang>/catalog/<catalog_type>/<catalog_id>.json')
+@catalog_bp.route('/<lang>/catalog/<catalog_type>/<catalog_id>/search=<search>.json')
 @cache.cached()
-def addon_catalog(catalog_type: str, catalog_id: str, search: str = None):
+def addon_catalog(catalog_type: str, catalog_id: str, search: str = None, lang: str = None):
     if not _is_valid_catalog(catalog_type, catalog_id):
         abort(404)
 

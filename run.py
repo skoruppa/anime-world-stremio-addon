@@ -26,7 +26,8 @@ logging.basicConfig(format='%(asctime)s %(message)s')
 
 @app.route('/')
 @app.route('/configure')
-def index():
+@app.route('/<lang>/configure')
+def index(lang=None):
     """
     Render the index page
     """
@@ -39,7 +40,8 @@ def index():
     html = render_template('index.html',
                           manifest_url=manifest_url, 
                           manifest_magnet=manifest_magnet,
-                          version=MANIFEST['version'])
+                          version=MANIFEST['version'],
+                          lang=lang)
     
     response = make_response(html)
     

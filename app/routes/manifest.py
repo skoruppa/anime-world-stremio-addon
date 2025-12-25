@@ -6,7 +6,7 @@ manifest_blueprint = Blueprint('manifest', __name__)
 
 MANIFEST = {
     'id': 'com.skoruppa.watchanimeworld-stremio-addon',
-    'version': '0.0.3',
+    'version': '0.0.4',
     'name': 'Anime World India Addon',
     'logo': 'https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png',
     'description': 'Watch anime in Hindi, Tamil, Telugu & English from WatchAnimeWorld.in',
@@ -26,7 +26,7 @@ MANIFEST = {
             'extra': [{'name': 'search', 'isRequired': True}]
         }
     ],
-    'behaviorHints': {'configurable': False},
+    'behaviorHints': {'configurable': True, 'configurationRequired': False},
     'resources': ['catalog', 'meta', 'stream'],
     'stremioAddonsConfig': {
         'issuer': 'https://stremio-addons.net',
@@ -36,9 +36,11 @@ MANIFEST = {
 
 
 @manifest_blueprint.route('/manifest.json')
-def addon_manifest():
+@manifest_blueprint.route('/<lang>/manifest.json')
+def addon_manifest(lang=None):
     """
-    Provides the manifest for the addon after the user has authenticated with MyAnimeList
+    Provides the manifest for the addon
+    :param lang: Optional language prefix for backward compatibility
     :return: JSON response
     """
     return respond_with(MANIFEST, 7200)

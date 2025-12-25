@@ -10,7 +10,7 @@ from app.mapper import get_or_create_slug_mapping
 stream_bp = Blueprint('stream', __name__)
 
 
-def process_stream_sync(stream_data):
+def process_stream_sync(stream_data, preferred_lang=None):
     """Process a single stream source"""
     from app.players.zephyrflick import get_video_from_zephyrflick_player
     import asyncio
@@ -28,19 +28,19 @@ def process_stream_sync(stream_data):
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     video_url, quality, headers, subtitles = loop.run_until_complete(
-                        get_video_from_zephyrflick_player(url)
+                        get_video_from_zephyrflick_player(url, preferred_lang)
                     )
                     loop.close()
                 else:
                     video_url, quality, headers, subtitles = loop.run_until_complete(
-                        get_video_from_zephyrflick_player(url)
+                        get_video_from_zephyrflick_player(url, preferred_lang)
                     )
             except RuntimeError:
                 # No event loop, create new one
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 video_url, quality, headers, subtitles = loop.run_until_complete(
-                    get_video_from_zephyrflick_player(url)
+                    get_video_from_zephyrflick_player(url, preferred_lang)
                 )
                 loop.close()
         except Exception as e:
@@ -73,11 +73,13 @@ def process_stream_sync(stream_data):
 
 
 @stream_bp.route('/stream/<content_type>/<content_id>.json')
-def addon_stream(content_type: str, content_id: str):
+@stream_bp.route('/<lang>/stream/<content_type>/<content_id>.json')
+def addon_stream(content_type: str, content_id: str, lang: str = None):
     """
     Provide stream URLs
     :param content_type: The type of content
     :param content_id: The id of the content (tt13706018:3:2 for series or tt13706018 for movies)
+    :param lang: Optional preferred audio language (e.g. 'hin', 'eng', 'jpn')
     :return: JSON response
     """
     content_id = urllib.parse.unquote(content_id)
@@ -110,7 +112,7 @@ def addon_stream(content_type: str, content_id: str):
         streams = []
         
         for stream_data in data.get('streams', []):
-            stream = process_stream_sync(stream_data)
+            stream = process_stream_sync(stream_data, lang)
             if stream:
                 streams.append(stream)
         

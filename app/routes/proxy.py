@@ -11,10 +11,58 @@ proxy_bp = Blueprint('proxy', __name__)
 # Store subtitle mappings with TTL (1 hour expiration, max 500 entries)
 subtitle_mappings = TTLCache(maxsize=500, ttl=3600)
 
+def reorder_audio_tracks(m3u8_content: str, preferred_lang: str) -> str:
+    """
+    Reorder audio tracks in m3u8 to set preferred language as DEFAULT=YES and first
+    """
+    lines = m3u8_content.split('\n')
+    audio_tracks = []
+    other_lines = []
+    preferred_track = None
+    
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith('#EXT-X-MEDIA:TYPE=AUDIO'):
+            # Extract language from track
+            lang_match = re.search(r'LANGUAGE="([^"]+)"', line)
+            if lang_match:
+                track_lang = lang_match.group(1)
+                if track_lang == preferred_lang:
+                    # Set as DEFAULT=YES
+                    line = re.sub(r'DEFAULT=(YES|NO)', 'DEFAULT=YES', line)
+                    preferred_track = line
+                else:
+                    # Set as DEFAULT=NO
+                    line = re.sub(r'DEFAULT=(YES|NO)', 'DEFAULT=NO', line)
+                    audio_tracks.append(line)
+            else:
+                audio_tracks.append(line)
+        else:
+            other_lines.append((i, line))
+        i += 1
+    
+    # Rebuild m3u8 with preferred track first
+    result = []
+    audio_inserted = False
+    
+    for idx, line in other_lines:
+        result.append(line)
+        # Insert audio tracks after #EXT-X-VERSION line
+        if line.startswith('#EXT-X-VERSION') and not audio_inserted:
+            if preferred_track:
+                result.append(preferred_track)
+            result.extend(audio_tracks)
+            audio_inserted = True
+    
+    return '\n'.join(result)
+
 @proxy_bp.route('/cdn/hls/<path:path>')
-def proxy_hls(path):
+@proxy_bp.route('/<lang>/cdn/hls/<path:path>')
+def proxy_hls(path, lang=None):
     """
     Proxy HLS playlist and rewrite URLs to point to original server
+    Optionally reorder audio tracks to set preferred language as default
     """
     # Get original URL with query params
     query_string = request.query_string.decode('utf-8')
@@ -32,6 +80,10 @@ def proxy_hls(path):
         resp.raise_for_status()
         
         content = resp.text
+        
+        # Reorder audio tracks if language specified
+        if lang:
+            content = reorder_audio_tracks(content, lang)
         
         # Rewrite relative URLs to absolute URLs pointing to original server
         content = re.sub(

@@ -3,10 +3,11 @@ import requests
 from app.routes.utils import get_random_agent
 from config import Config
 
-async def get_video_from_zephyrflick_player(player_url: str):
+async def get_video_from_zephyrflick_player(player_url: str, preferred_lang: str = None):
     """
     Extract video URL and subtitles from Zephyrflick player
     :param player_url: Zephyrflick player URL
+    :param preferred_lang: Preferred audio language (e.g. 'hin', 'eng', 'jpn')
     :return: tuple (video_url, quality, headers, subtitles)
     """
     try:
@@ -39,8 +40,11 @@ async def get_video_from_zephyrflick_player(player_url: str):
         if not video_url:
             return None, None, None, []
         
-        # Rewrite URL to use our proxy
-        video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}')
+        # Rewrite URL to use our proxy (with language if specified)
+        if preferred_lang:
+            video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}/{preferred_lang}')
+        else:
+            video_url = video_url.replace('https://play.zephyrflick.top', f'{Config.PROTOCOL}://{Config.REDIRECT_URL}')
 
         stream_headers = None
         

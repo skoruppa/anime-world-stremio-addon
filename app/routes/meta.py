@@ -11,7 +11,8 @@ meta_bp = Blueprint('meta', __name__)
 
 
 @meta_bp.route('/meta/<meta_type>/<meta_id>.json')
-def addon_meta(meta_type: str, meta_id: str):
+@meta_bp.route('/<lang>/meta/<meta_type>/<meta_id>.json')
+def addon_meta(meta_type: str, meta_id: str, lang: str = None):
     meta_id = unquote(meta_id)
 
     if meta_type not in MANIFEST['types']:
