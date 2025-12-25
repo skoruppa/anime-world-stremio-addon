@@ -14,35 +14,25 @@ def process_stream_sync(stream_data, preferred_lang=None):
     """Process a single stream source"""
     from app.players.zephyrflick import get_video_from_zephyrflick_player
     import asyncio
+    import nest_asyncio
     
     player = stream_data.get('player')
     url = stream_data.get('url')
     
     if player == 'zephyrflick':
         try:
-            # Get or create event loop (gevent compatible)
+            # Allow nested event loops
+            nest_asyncio.apply()
+            
             try:
                 loop = asyncio.get_event_loop()
-                if loop.is_running():
-                    # If loop is running (gevent), create new one
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    video_url, quality, headers, subtitles = loop.run_until_complete(
-                        get_video_from_zephyrflick_player(url, preferred_lang)
-                    )
-                    loop.close()
-                else:
-                    video_url, quality, headers, subtitles = loop.run_until_complete(
-                        get_video_from_zephyrflick_player(url, preferred_lang)
-                    )
             except RuntimeError:
-                # No event loop, create new one
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                video_url, quality, headers, subtitles = loop.run_until_complete(
-                    get_video_from_zephyrflick_player(url, preferred_lang)
-                )
-                loop.close()
+            
+            video_url, quality, headers, subtitles = loop.run_until_complete(
+                get_video_from_zephyrflick_player(url, preferred_lang)
+            )
         except Exception as e:
             print(f"Error processing stream: {e}")
             return None
