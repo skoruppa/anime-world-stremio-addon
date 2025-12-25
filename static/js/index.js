@@ -35,8 +35,30 @@ function toggleTooltip(event) {
     event.stopPropagation();
     event.preventDefault();
     const icon = event.currentTarget;
+    
+    // Toggle active state on click
     icon.classList.toggle('active');
+    
+    // Remove focus to prevent issues on mobile
+    icon.blur();
 }
+
+// Handle hover events (only on non-touch devices)
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isTouchDevice) {
+        document.querySelectorAll('.info-icon').forEach(icon => {
+            icon.addEventListener('mouseenter', function() {
+                this.classList.add('active');
+            });
+            
+            icon.addEventListener('mouseleave', function() {
+                this.classList.remove('active');
+            });
+        });
+    }
+});
 
 document.addEventListener('click', function(event) {
     const tooltips = document.querySelectorAll('.info-icon.active');

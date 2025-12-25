@@ -57,15 +57,12 @@ a:hover { color: #20a09d; }
     border-color: #28c2bd;
     box-shadow: 0 0 0 0.25rem rgba(40, 194, 189, 0.25);
 }
-.form-check { display: flex; align-items: center; gap: 0.5rem; }
+.form-check { display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; }
 .form-check-label { display: flex; align-items: center; flex-wrap: wrap; }
 
 @media (max-width: 576px) {
     .label-break {
         display: block;
-    }
-    .info-icon {
-        margin-left: auto;
     }
 }
 .form-select { background-color: #1a1a1a !important; color: #28c2bd !important; border: 1px solid #28c2bd !important; }
@@ -74,13 +71,12 @@ a:hover { color: #20a09d; }
 .info-icon {
     color: #28c2bd;
     cursor: pointer;
-    margin-left: 0.5rem;
+    margin-left: auto;
     position: relative;
     font-size: 1.2rem;
     display: inline-flex;
     align-items: center;
     padding: 0.25rem;
-    vertical-align: middle;
 }
 
 .info-icon .tooltip-text {
@@ -128,7 +124,6 @@ a:hover { color: #20a09d; }
     border-color: #28c2bd transparent transparent transparent;
 }
 
-.info-icon:hover .tooltip-text,
 .info-icon.active .tooltip-text {
     visibility: visible;
     opacity: 1;
