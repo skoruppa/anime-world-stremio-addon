@@ -31,6 +31,22 @@ function toggleLanguageSelect() {
     }
 }
 
+function toggleTooltip(event) {
+    event.stopPropagation();
+    event.preventDefault();
+    const icon = event.currentTarget;
+    icon.classList.toggle('active');
+}
+
+document.addEventListener('click', function(event) {
+    const tooltips = document.querySelectorAll('.info-icon.active');
+    tooltips.forEach(tooltip => {
+        if (!tooltip.contains(event.target)) {
+            tooltip.classList.remove('active');
+        }
+    });
+});
+
 function updateManifestUrl() {
     const checkbox = document.getElementById('advancedCheck');
     const languageSelect = document.getElementById('languageSelect');
