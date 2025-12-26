@@ -133,4 +133,4 @@ If you encounter any issues or have any questions regarding the addon, feel free
 
 ## 🤝 Support
 
-If you want to thank me for the addon, you can [buy me a coffee](https://buycoffee.to/skoruppa) ☕
+If you want to thank me for the addon, you can [buy me a coffee](https://buymeacoffee.com/skoruppa) ☕
