@@ -25,6 +25,21 @@ def cleanup_old_failed_mappings(days: int = 30):
     finally:
         session.close()
 
+def cleanup_all_failed_mappings():
+    """Remove ALL failed mappings (useful after domain change)"""
+    session = db.Session()
+    try:
+        deleted = session.query(FailedMapping).delete()
+        session.commit()
+        print(f"✓ Cleaned up ALL {deleted} failed mappings")
+        return deleted
+    except Exception as e:
+        print(f"✗ Error during cleanup: {e}")
+        session.rollback()
+        return 0
+    finally:
+        session.close()
+
 def show_stats():
     """Show database statistics"""
     session = db.Session()
@@ -65,8 +80,12 @@ if __name__ == '__main__':
         days = int(sys.argv[2]) if len(sys.argv) > 2 else 30
         cleanup_old_failed_mappings(days)
         show_stats()
+    elif len(sys.argv) > 1 and sys.argv[1] == '--clean-all':
+        cleanup_all_failed_mappings()
+        show_stats()
     else:
         print("Usage:")
         print("  python maintenance.py              # Show statistics only")
         print("  python maintenance.py --clean      # Clean mappings older than 30 days")
         print("  python maintenance.py --clean 60   # Clean mappings older than 60 days")
+        print("  python maintenance.py --clean-all  # Clean ALL failed mappings (after domain change)")

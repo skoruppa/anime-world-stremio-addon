@@ -6,7 +6,7 @@ manifest_blueprint = Blueprint('manifest', __name__)
 
 MANIFEST = {
     'id': 'com.skoruppa.watchanimeworld-stremio-addon',
-    'version': '0.0.8',
+    'version': '0.0.9',
     'name': 'Anime World India Addon',
     'logo': 'https://watchanimeworld.net/wp-content/uploads/AWI-SiteTitle-1.png',
     'description': 'Watch anime in Hindi, Tamil, Telugu & English from WatchAnimeWorld.net',

@@ -1,10 +1,21 @@
 import logging
 import requests
+import random
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, quote
 import re
 from cachetools import TTLCache, cached
 import time
+
+_USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/119.0",
+]
 
 BASE_URL = "https://watchanimeworld.net"
 TIMEOUT = 15
@@ -23,9 +34,11 @@ class WatchAnimeWorldAPI:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
             'Accept-Encoding': 'gzip, deflate',
-            'Connection': 'keep-alive'
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
         })
         # Connection pooling
         adapter = requests.adapters.HTTPAdapter(
@@ -35,6 +48,11 @@ class WatchAnimeWorldAPI:
         )
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
+
+    def _get(self, url, **kwargs):
+        """GET with rotating User-Agent"""
+        self.session.headers['User-Agent'] = random.choice(_USER_AGENTS)
+        return self.session.get(url, **kwargs)
 
     def _parse_section(self, soup, section_title):
         """Parse a section from homepage by title"""
@@ -164,7 +182,7 @@ class WatchAnimeWorldAPI:
             'post': post_id
         }
         
-        resp = self.session.get(url, params=params, timeout=TIMEOUT)
+        resp = self._get(url, params=params, timeout=TIMEOUT)
         resp.raise_for_status()
         
         soup = BeautifulSoup(resp.text, 'html.parser')
@@ -173,7 +191,7 @@ class WatchAnimeWorldAPI:
     def get_newest_drops(self):
         """Get Newest Drops section"""
         try:
-            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp = self._get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Newest Drops')
@@ -190,7 +208,7 @@ class WatchAnimeWorldAPI:
     def get_most_watched_shows(self):
         """Get Most-Watched Shows section"""
         try:
-            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp = self._get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Most-Watched Shows')
@@ -207,7 +225,7 @@ class WatchAnimeWorldAPI:
     def get_new_anime_arrivals(self):
         """Get New Anime Arrivals section"""
         try:
-            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp = self._get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'New Anime Arrivals')
@@ -224,7 +242,7 @@ class WatchAnimeWorldAPI:
     def get_most_watched_films(self):
         """Get Most-Watched Films section"""
         try:
-            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp = self._get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Most-Watched Films')
@@ -241,7 +259,7 @@ class WatchAnimeWorldAPI:
     def get_latest_anime_movies(self):
         """Get Latest Anime Movies section"""
         try:
-            resp = self.session.get(BASE_URL, timeout=TIMEOUT)
+            resp = self._get(BASE_URL, timeout=TIMEOUT)
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, 'html.parser')
             results = self._parse_section(soup, 'Latest Anime Movies')
@@ -262,7 +280,7 @@ class WatchAnimeWorldAPI:
             url = f"{BASE_URL}/"
             params = {'s': query}
             
-            resp = self.session.get(url, params=params, timeout=TIMEOUT)
+            resp = self._get(url, params=params, timeout=TIMEOUT)
             resp.raise_for_status()
             
             soup = BeautifulSoup(resp.text, 'html.parser')
@@ -307,7 +325,7 @@ class WatchAnimeWorldAPI:
             url = f"{BASE_URL}/{content_type}/{slug}"
             
             try:
-                resp = self.session.get(url, timeout=TIMEOUT)
+                resp = self._get(url, timeout=TIMEOUT)
                 resp.raise_for_status()
                 
                 soup = BeautifulSoup(resp.text, 'html.parser')
@@ -377,7 +395,7 @@ class WatchAnimeWorldAPI:
             url = f"{BASE_URL}/movies/{slug}"
         
         try:
-            resp = self.session.get(url, timeout=TIMEOUT)
+            resp = self._get(url, timeout=TIMEOUT)
             resp.raise_for_status()
             
             soup = BeautifulSoup(resp.text, 'html.parser')
