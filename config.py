@@ -19,6 +19,10 @@ class Config:
     # TMDB API Key
     TMDB_API_KEY = os.getenv('TMDB_API_KEY', '')
     
+    # MediaFlow Proxy (for bypassing geo/IP blocks on scraping requests)
+    SCRAPER_PROXY_URL = os.getenv('SCRAPER_PROXY_URL', '')
+    SCRAPER_PROXY_PASSWORD = os.getenv('SCRAPER_PROXY_PASSWORD', '')
+    
     # Database configuration
     DB_TYPE = os.getenv('DB_TYPE', 'sqlite')  # 'sqlite' or 'postgresql'
     DB_PATH = os.getenv('DB_PATH', 'mappings.db')  # For SQLite

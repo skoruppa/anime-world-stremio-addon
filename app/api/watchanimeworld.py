@@ -2,10 +2,15 @@ import logging
 import requests
 import random
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, quote
+from urllib.parse import urljoin, quote, urlencode
 import re
 from cachetools import TTLCache, cached
 import time
+import urllib3
+from config import Config
+
+# Suppress SSL warnings for proxy requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 _USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
@@ -50,8 +55,25 @@ class WatchAnimeWorldAPI:
         self.session.mount('https://', adapter)
 
     def _get(self, url, **kwargs):
-        """GET with rotating User-Agent"""
-        self.session.headers['User-Agent'] = random.choice(_USER_AGENTS)
+        """GET with rotating User-Agent, optionally through MediaFlow proxy"""
+        user_agent = random.choice(_USER_AGENTS)
+        self.session.headers['User-Agent'] = user_agent
+        
+        if Config.SCRAPER_PROXY_URL and Config.SCRAPER_PROXY_PASSWORD:
+            # Build full URL with params if provided
+            params = kwargs.pop('params', None)
+            if params:
+                url = f"{url}?{urlencode(params)}"
+            
+            proxy_url = (
+                f"{Config.SCRAPER_PROXY_URL}/proxy/stream"
+                f"?d={quote(url, safe='')}"
+                f"&api_password={Config.SCRAPER_PROXY_PASSWORD}"
+                f"&h_user-agent={quote(user_agent, safe='')}"
+            )
+            kwargs['verify'] = False
+            return self.session.get(proxy_url, **kwargs)
+        
         return self.session.get(url, **kwargs)
 
     def _parse_section(self, soup, section_title):

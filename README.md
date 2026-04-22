@@ -1,5 +1,5 @@
 # Anime World India Stremio Addon
-![Version](https://img.shields.io/badge/version-0.0.9-blue.svg)
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-Active-brightgreen.svg)
 
