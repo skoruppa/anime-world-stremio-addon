@@ -6,7 +6,7 @@ import re
 from cachetools import TTLCache, cached
 import time
 
-BASE_URL = "https://watchanimeworld.in"
+BASE_URL = "https://watchanimeworld.net"
 TIMEOUT = 15
 
 # TTL cache with 15 minutes expiration

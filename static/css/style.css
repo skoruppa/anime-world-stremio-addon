@@ -15,7 +15,7 @@ body::before {
     right: 0;
     height: 50vh;
     background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.95)), 
-                url('https://watchanimeworld.in/wp-content/uploads/129659-final-1-scaled.jpg');
+                url('https://watchanimeworld.net/wp-content/uploads/129659-final-1-scaled.jpg');
     background-size: cover;
     background-position: center top;
     z-index: -1;

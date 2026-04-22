@@ -1,13 +1,13 @@
 # Anime World India Stremio Addon
-![Version](https://img.shields.io/badge/version-0.0.3-blue.svg)
+![Version](https://img.shields.io/badge/version-0.0.8-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-Active-brightgreen.svg)
 
 <div align="center">
-  <img src="https://watchanimeworld.in/wp-content/uploads/AWI-SiteTitle-1.png" alt="WatchAnimeWorld Logo" width="300">
+  <img src="https://watchanimeworld.net/wp-content/uploads/AWI-SiteTitle-1.png" alt="WatchAnimeWorld Logo" width="300">
 </div>
 
-This unofficial Stremio addon allows users to access anime streams from [AnimeWorld India](https://watchanimeworld.in/) - source for anime in Hindi, Tamil, Telugu & English.
+This unofficial Stremio addon allows users to access anime streams from [AnimeWorld India](https://watchanimeworld.net/) - source for anime in Hindi, Tamil, Telugu & English.
 
 ## 🎯 Supported Players
 - **Zephyrflick**: Primary streaming source with subtitle support
@@ -124,7 +124,7 @@ The addon will be available at `http://localhost:5000`
 This addon is developed using:
 
 - **Stremio Addon SDK**: [official documentation](https://github.com/Stremio/stremio-addon-sdk)
-- **WatchAnimeWorld.in**: Website providing all the anime
+- **WatchAnimeWorld.net**: Website providing all the anime
 - **TMDB API**: For IMDB ID mapping and metadata
 
 ## 🐛 Help
@@ -133,4 +133,4 @@ If you encounter any issues or have any questions regarding the addon, feel free
 
 ## 🤝 Support
 
-If you want to thank me for the addon, you can [buy me a coffee](https://buymeacoffee.com/skoruppa) ☕
+If you want to thank me for the addon, you can [support me on Ko-fi](https://ko-fi.com/skoruppa) ☕
